@@ -54,7 +54,8 @@ io.on('connection', (socket) => {
             console.log(`Host assigned upon request: ${hostSocketId}`);
             socket.emit('host-status', { isHost: true });
         } else {
-            socket.emit('host-status', { isHost: false });
+            const isRequesterHost = socket.id === hostSocketId;
+            socket.emit('host-status', { isHost: isRequesterHost });
         }
     });
 
