@@ -8,30 +8,32 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// 静的ファイルの提供（publicディレクトリをホスティング）
+// 静的ファイルの提供
 app.use(express.static('public'));
+
+// 現在の設定を保持する変数
+let currentSettings = { color: 'black', blinkInterval: 1000 };
 
 // WebSocket接続の管理
 io.on('connection', (socket) => {
     console.log('A client connected:', socket.id);
 
+    // クライアントが接続した際に最新設定を送信
+    socket.emit('update-display', currentSettings);
+
     // ホストから設定を受け取る
     socket.on('update-settings', (settings) => {
         console.log('Received settings from host:', settings);
+        currentSettings = settings; // 最新設定を更新
 
         // すべてのクライアントに設定を送信
-        socket.broadcast.emit('update-display', settings);
+        io.emit('update-display', currentSettings);
     });
 
     // 切断時の処理
     socket.on('disconnect', () => {
         console.log('A client disconnected:', socket.id);
     });
-});
-
-// デフォルトルート（/）を追加
-app.get('/', (req, res) => {
-    res.send('WebSocket Server is running. Please access /host.html or /client.html in the public folder.');
 });
 
 // サーバー起動
