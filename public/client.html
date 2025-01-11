@@ -19,15 +19,15 @@
             position: absolute;
             top: 100px;
             left: 100px;
-            width: 200px;
-            height: 200px;
+            width: 100px;
+            height: 100px;
             display: none; /* 初期状態は非表示 */
         }
     </style>
 </head>
 <body>
     <!-- QRコード画像 -->
-    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -53,48 +53,4 @@
             const offset = Date.now() - timestamp; // サーバーとクライアントのタイムラグ
             const initialDelay = blinkPattern === 'always' ? 0 : (500 - (offset % 500));
 
-            switch (blinkPattern) {
-                case 'always':
-                    // 常時点灯
-                    document.body.style.backgroundColor = color;
-                    qrCode.style.display = 'block'; // QRコードを表示
-                    break;
-
-                case 'blink-100-400':
-                    animationInterval = setTimeout(() => {
-                        animationInterval = setInterval(() => {
-                            const isOn = document.body.style.backgroundColor === 'black';
-                            document.body.style.backgroundColor = isOn ? color : 'black';
-                            qrCode.style.display = isOn ? 'none' : 'block'; // 点灯時のみ表示
-                        }, 500);
-                    }, initialDelay);
-                    break;
-
-                case 'blink-500-500':
-                    animationInterval = setTimeout(() => {
-                        animationInterval = setInterval(() => {
-                            const isOn = document.body.style.backgroundColor === 'black';
-                            document.body.style.backgroundColor = isOn ? color : 'black';
-                            qrCode.style.display = isOn ? 'none' : 'block'; // 点灯時のみ表示
-                        }, 1000);
-                    }, initialDelay);
-                    break;
-
-                case 'fade':
-                    document.body.style.transition = 'background-color 0.5s ease-in-out';
-                    animationInterval = setTimeout(() => {
-                        animationInterval = setInterval(() => {
-                            const isOn = document.body.style.backgroundColor === 'black';
-                            document.body.style.backgroundColor = isOn ? color : 'black';
-                            qrCode.style.display = isOn ? 'none' : 'block'; // 点灯時のみ表示
-                        }, 1000);
-                    }, initialDelay);
-                    break;
-
-                default:
-                    console.error('Unknown blink pattern:', blinkPattern);
-            }
-        });
-    </script>
-</body>
-</html>
+            switch (blinkPattern)
