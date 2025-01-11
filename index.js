@@ -8,7 +8,7 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// 静的ファイルの提供（必要に応じてフロントエンドをホスティング）
+// 静的ファイルの提供（publicディレクトリをホスティング）
 app.use(express.static('public'));
 
 // WebSocket接続の管理
@@ -27,6 +27,11 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('A client disconnected:', socket.id);
     });
+});
+
+// デフォルトルート（/）を追加
+app.get('/', (req, res) => {
+    res.send('WebSocket Server is running. Please access /host.html or /client.html in the public folder.');
 });
 
 // サーバー起動
