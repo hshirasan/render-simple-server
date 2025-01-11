@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static('public'));
 
 // 現在の設定を保持する変数
-let currentSettings = { color: 'black', blinkPattern: 'always' };
+let currentSettings = { color: 'black', blinkPattern: 'always', timestamp: Date.now() };
 
 // WebSocket接続の管理
 io.on('connection', (socket) => {

@@ -30,32 +30,28 @@
         <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
     </fieldset>
 
-    <button id="updateSettings">Send Settings</button>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
-        document.getElementById('updateSettings').addEventListener('click', () => {
-            // 選択された色を取得
+        const updateSettings = () => {
             const color = document.querySelector('input[name="color"]:checked')?.value;
-            if (!color) {
-                alert('Please select a color!');
-                return;
-            }
-
-            // 選択された点滅パターンを取得
             const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
-            if (!blinkPattern) {
-                alert('Please select a blink pattern!');
-                return;
-            }
 
-            // サーバーに設定を送信
-            const settings = { color, blinkPattern };
-            socket.emit('update-settings', settings);
-            console.log('Settings sent:', settings);
-        });
+            if (color && blinkPattern) {
+                const settings = { color, blinkPattern, timestamp: Date.now() };
+                socket.emit('update-settings', settings);
+                console.log('Settings sent:', settings);
+            }
+        };
+
+        // ラジオボタンにイベントリスナーを追加
+        document.querySelectorAll('input[name="color"]').forEach((radio) =>
+            radio.addEventListener('change', updateSettings)
+        );
+        document.querySelectorAll('input[name="blink"]').forEach((radio) =>
+            radio.addEventListener('change', updateSettings)
+        );
     </script>
 </body>
 </html>
