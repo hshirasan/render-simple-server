@@ -34,6 +34,7 @@
             width: 200px;
             height: 120px;
             display: none; /* 初期状態は非表示 */
+            background-color: transparent; /* 背景を透明に設定 */
         }
     </style>
 </head>
@@ -78,21 +79,14 @@
 
                 case 'blink-100-400':
                 case 'blink-500-500':
-                    // 点滅処理
+                case 'fade':
+                    // 点滅処理またはフェード処理
                     const interval = blinkPattern === 'blink-100-400' ? 500 : 1000;
+                    document.body.style.transition = blinkPattern === 'fade' ? 'background-color 0.5s ease-in-out' : ''; // フェード用トランジション
                     animationInterval = setInterval(() => {
                         const isBlack = document.body.style.backgroundColor === 'black';
                         document.body.style.backgroundColor = isBlack ? color : 'black';
                     }, interval);
-                    break;
-
-                case 'fade':
-                    // フェードイン・アウト
-                    document.body.style.transition = 'background-color 0.5s ease-in-out'; // フェード効果を追加
-                    animationInterval = setInterval(() => {
-                        const isBlack = document.body.style.backgroundColor === 'black';
-                        document.body.style.backgroundColor = isBlack ? color : 'black';
-                    }, 1000);
                     break;
 
                 default:
