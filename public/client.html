@@ -12,6 +12,8 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            background-color: black; /* 初期状態を黒に設定 */
+            transition: background-color 0.5s ease-in-out; /* フェード用のトランジション */
         }
 
         /* QRコードのスタイル */
@@ -24,7 +26,7 @@
             display: none; /* 初期状態は非表示 */
         }
 
-        /* PNG画像のスタイル */
+        /* 固定PNG画像のスタイル */
         #fixed-image {
             position: absolute;
             top: 50px;
@@ -57,13 +59,9 @@
             // 点滅処理をリセット
             if (animationInterval) {
                 clearInterval(animationInterval);
-                document.body.style.transition = 'none'; // アニメーションをリセット
-                document.body.style.backgroundColor = 'black';
+                animationInterval = null;
                 qrCode.style.display = 'none'; // 初期状態で非表示
             }
-
-            const offset = Date.now() - timestamp; // サーバーとクライアントのタイムラグ
-            const initialDelay = blinkPattern === 'always' ? 0 : (1000 - (offset % 1000));
 
             switch (blinkPattern) {
                 case 'always':
@@ -74,19 +72,25 @@
 
                 case 'blink-100-400':
                 case 'blink-500-500':
-                case 'fade':
                     qrCode.style.display = 'none'; // 点滅時は非表示
-                    animationInterval = setTimeout(() => {
-                        animationInterval = setInterval(() => {
-                            const isOn = document.body.style.backgroundColor === 'black';
-                            document.body.style.backgroundColor = isOn ? color : 'black';
-                        }, blinkPattern === 'blink-100-400' ? 500 : 1000);
-                    }, initialDelay);
+                    const interval = blinkPattern === 'blink-100-400' ? 500 : 1000;
+                    animationInterval = setInterval(() => {
+                        const isBlack = document.body.style.backgroundColor === 'black';
+                        document.body.style.backgroundColor = isBlack ? color : 'black';
+                    }, interval);
+                    break;
+
+                case 'fade':
+                    qrCode.style.display = 'none'; // フェード時はQRコード非表示
+                    animationInterval = setInterval(() => {
+                        const isBlack = document.body.style.backgroundColor === 'black';
+                        document.body.style.backgroundColor = isBlack ? color : 'black';
+                    }, 1000);
                     break;
 
                 default:
                     console.error('Unknown blink pattern:', blinkPattern);
-                    qrCode.style.display = 'none';
+                    qrCode.style.display = 'none'; // 未知のパターンでは非表示
             }
         });
     </script>
