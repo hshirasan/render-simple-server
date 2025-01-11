@@ -1,52 +1,74 @@
-const socket = io();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Display</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
 
-let animationInterval;
+        let animationInterval;
 
-// サーバーからの設定を受信
-socket.on('update-display', (settings) => {
-    console.log('Received settings:', settings);
+        // サーバーからの設定を受信
+        socket.on('update-display', (settings) => {
+            console.log('Received settings:', settings);
 
-    const { color, blinkPattern } = settings;
+            const { color, blinkPattern } = settings;
 
-    // 点滅処理をリセット
-    if (animationInterval) {
-        clearInterval(animationInterval);
-        document.body.style.transition = 'none'; // アニメーションをリセット
-        document.body.style.backgroundColor = 'black';
-    }
+            // 点滅処理をリセット
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                document.body.style.transition = 'none'; // アニメーションをリセット
+                document.body.style.backgroundColor = 'black';
+            }
 
-    switch (blinkPattern) {
-        case 'always':
-            // 常時点灯
-            document.body.style.backgroundColor = color;
-            break;
+            switch (blinkPattern) {
+                case 'always':
+                    // 常時点灯
+                    document.body.style.backgroundColor = color;
+                    break;
 
-        case 'blink-100-400':
-            // 100ms点灯・400ms消灯の繰り返し
-            animationInterval = setInterval(() => {
-                document.body.style.backgroundColor =
-                    document.body.style.backgroundColor === 'black' ? color : 'black';
-            }, 500);
-            break;
+                case 'blink-100-400':
+                    // 100ms点灯・400ms消灯の繰り返し
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor =
+                            document.body.style.backgroundColor === 'black' ? color : 'black';
+                    }, 500);
+                    break;
 
-        case 'blink-500-500':
-            // 500ms点灯・500ms消灯の繰り返し
-            animationInterval = setInterval(() => {
-                document.body.style.backgroundColor =
-                    document.body.style.backgroundColor === 'black' ? color : 'black';
-            }, 1000);
-            break;
+                case 'blink-500-500':
+                    // 500ms点灯・500ms消灯の繰り返し
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor =
+                            document.body.style.backgroundColor === 'black' ? color : 'black';
+                    }, 1000);
+                    break;
 
-        case 'fade':
-            // フェードイン・アウト
-            document.body.style.transition = 'background-color 0.5s ease-in-out';
-            animationInterval = setInterval(() => {
-                document.body.style.backgroundColor =
-                    document.body.style.backgroundColor === 'black' ? color : 'black';
-            }, 1000);
-            break;
+                case 'fade':
+                    // フェードイン・アウト
+                    document.body.style.transition = 'background-color 0.5s ease-in-out';
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor =
+                            document.body.style.backgroundColor === 'black' ? color : 'black';
+                    }, 1000);
+                    break;
 
-        default:
-            console.error('Unknown blink pattern:', blinkPattern);
-    }
-});
+                default:
+                    console.error('Unknown blink pattern:', blinkPattern);
+            }
+        });
+    </script>
+</body>
+</html>
