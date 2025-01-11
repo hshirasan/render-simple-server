@@ -47,6 +47,17 @@ io.on('connection', (socket) => {
         }
     });
 
+    // クライアントがホスト権限を要求
+    socket.on('request-host', () => {
+        if (!hostSocketId) {
+            hostSocketId = socket.id;
+            console.log(`Host assigned upon request: ${hostSocketId}`);
+            socket.emit('host-status', { isHost: true });
+        } else {
+            socket.emit('host-status', { isHost: false });
+        }
+    });
+
     // 切断時
     socket.on('disconnect', () => {
         console.log(`Socket disconnected: ${socket.id}`);

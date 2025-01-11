@@ -49,9 +49,13 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+
         let isHost = false; // ホスト権限を持つかどうか
 
-        // 権限確認
+        // ホスト権限のリクエスト
+        socket.emit('request-host');
+
+        // ホストステータスを受信
         socket.on('host-status', (status) => {
             isHost = status.isHost;
 
@@ -63,11 +67,7 @@
 
             // 非ホストメッセージの表示
             const notHostMessage = document.getElementById('not-host-message');
-            if (!isHost) {
-                notHostMessage.style.display = 'block'; // メッセージを表示
-            } else {
-                notHostMessage.style.display = 'none'; // メッセージを非表示
-            }
+            notHostMessage.style.display = isHost ? 'none' : 'block';
         });
 
         // サーバーからの設定を受信してラジオボタンの状態を更新
