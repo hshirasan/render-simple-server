@@ -8,36 +8,78 @@
         fieldset {
             margin-bottom: 20px;
         }
+        #password-prompt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+        #host-panel {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Host Panel</h1>
+    <!-- パスワード入力画面 -->
+    <div id="password-prompt">
+        <h1>Enter Host Password</h1>
+        <input type="password" id="password-input" placeholder="Password">
+        <button id="password-submit">Submit</button>
+        <p id="error-message" style="color: red; display: none;">Invalid password. Please try again.</p>
+    </div>
 
-    <!-- 色選択 -->
-    <fieldset>
-        <legend>Select Color:</legend>
-        <label><input type="radio" name="color" value="red" checked> Red</label>
-        <label><input type="radio" name="color" value="yellow"> Yellow</label>
-        <label><input type="radio" name="color" value="pink"> Pink</label>
-        <label><input type="radio" name="color" value="green"> Green</label>
-        <label><input type="radio" name="color" value="purple"> Purple</label>
-        <label><input type="radio" name="color" value="white"> White</label>
-        <label><input type="radio" name="color" value="cyan"> Cyan</label>
-        <label><input type="radio" name="color" value="blue"> Blue</label>
-    </fieldset>
+    <!-- ホストパネル -->
+    <div id="host-panel">
+        <h1>Host Panel</h1>
 
-    <!-- 点滅パターン選択 -->
-    <fieldset>
-        <legend>Select Blink Pattern:</legend>
-        <label><input type="radio" name="blink" value="always" checked> Always On</label>
-        <label><input type="radio" name="blink" value="blink-100-400"> 100ms On / 400ms Off</label>
-        <label><input type="radio" name="blink" value="blink-500-500"> 500ms On / 500ms Off</label>
-        <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
-    </fieldset>
+        <!-- 色選択 -->
+        <fieldset>
+            <legend>Select Color:</legend>
+            <label><input type="radio" name="color" value="red" checked> Red</label>
+            <label><input type="radio" name="color" value="yellow"> Yellow</label>
+            <label><input type="radio" name="color" value="pink"> Pink</label>
+            <label><input type="radio" name="color" value="green"> Green</label>
+            <label><input type="radio" name="color" value="purple"> Purple</label>
+            <label><input type="radio" name="color" value="white"> White</label>
+            <label><input type="radio" name="color" value="cyan"> Cyan</label>
+            <label><input type="radio" name="color" value="blue"> Blue</label>
+        </fieldset>
+
+        <!-- 点滅パターン選択 -->
+        <fieldset>
+            <legend>Select Blink Pattern:</legend>
+            <label><input type="radio" name="blink" value="always" checked> Always On</label>
+            <label><input type="radio" name="blink" value="blink-100-400"> 100ms On / 400ms Off</label>
+            <label><input type="radio" name="blink" value="blink-500-500"> 500ms On / 500ms Off</label>
+            <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
+        </fieldset>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+
+        const passwordPrompt = document.getElementById('password-prompt');
+        const hostPanel = document.getElementById('host-panel');
+        const passwordInput = document.getElementById('password-input');
+        const passwordSubmit = document.getElementById('password-submit');
+        const errorMessage = document.getElementById('error-message');
+
+        // パスワード送信イベント
+        passwordSubmit.addEventListener('click', () => {
+            const password = passwordInput.value;
+
+            socket.emit('authenticate-host', password, (response) => {
+                if (response.success) {
+                    passwordPrompt.style.display = 'none'; // パスワード入力画面を非表示
+                    hostPanel.style.display = 'block'; // ホストパネルを表示
+                } else {
+                    errorMessage.style.display = 'block'; // エラーメッセージを表示
+                }
+            });
+        });
 
         // ホストの設定変更を送信
         const updateSettings = () => {
