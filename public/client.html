@@ -13,7 +13,6 @@
             align-items: center;
             position: relative;
             background-color: black; /* 初期状態を黒に設定 */
-            transition: background-color 0.5s ease-in-out; /* フェード用のトランジション */
         }
 
         /* QRコードのスタイル */
@@ -26,22 +25,15 @@
             display: none; /* 初期状態は非表示 */
         }
 
-        /* 固定PNG画像のスタイル */
-        #fixed-image {
-            position: absolute;
-            top: 50px;
-            left: 160px; /* QRコードの右側に配置 (100px + 10pxマージン) */
-            width: 100px;
-            height: auto; /* 元画像の縦横比を維持 */
+        /* transition専用のクラス */
+        .fade {
+            transition: background-color 0.5s ease-in-out; /* フェード用 */
         }
     </style>
 </head>
 <body>
     <!-- QRコード画像 -->
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
-
-    <!-- 固定PNG画像 -->
-    <img id="fixed-image" src="/1-you2-2-p-s.png" alt="Fixed PNG Image">
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -60,8 +52,9 @@
             if (animationInterval) {
                 clearInterval(animationInterval);
                 animationInterval = null;
-                qrCode.style.display = 'none'; // 初期状態で非表示
             }
+            document.body.classList.remove('fade'); // フェードクラスを初期化
+            qrCode.style.display = 'none'; // QRコードを非表示
 
             switch (blinkPattern) {
                 case 'always':
@@ -72,7 +65,7 @@
 
                 case 'blink-100-400':
                 case 'blink-500-500':
-                    qrCode.style.display = 'none'; // 点滅時は非表示
+                    // 点滅パターン
                     const interval = blinkPattern === 'blink-100-400' ? 500 : 1000;
                     animationInterval = setInterval(() => {
                         const isBlack = document.body.style.backgroundColor === 'black';
@@ -81,7 +74,8 @@
                     break;
 
                 case 'fade':
-                    qrCode.style.display = 'none'; // フェード時はQRコード非表示
+                    // フェードイン・アウト
+                    document.body.classList.add('fade'); // フェードクラスを追加
                     animationInterval = setInterval(() => {
                         const isBlack = document.body.style.backgroundColor === 'black';
                         document.body.style.backgroundColor = isBlack ? color : 'black';
@@ -90,7 +84,7 @@
 
                 default:
                     console.error('Unknown blink pattern:', blinkPattern);
-                    qrCode.style.display = 'none'; // 未知のパターンでは非表示
+                    document.body.style.backgroundColor = 'black'; // 初期状態に戻す
             }
         });
     </script>
