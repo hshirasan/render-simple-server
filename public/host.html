@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host</title>
+</head>
+<body>
+    <h1>Host Panel</h1>
+    <label>
+        Select Color:
+        <input type="color" id="colorPicker">
+    </label>
+    <br>
+    <label>
+        Blink Interval (ms):
+        <input type="number" id="blinkInterval" min="100" step="100" value="1000">
+    </label>
+    <br>
+    <button id="updateSettings">Send Settings</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        document.getElementById('updateSettings').addEventListener('click', () => {
+            const color = document.getElementById('colorPicker').value;
+            const blinkInterval = parseInt(document.getElementById('blinkInterval').value, 10);
+
+            const settings = { color, blinkInterval };
+            socket.emit('update-settings', settings);
+            console.log('Settings sent:', settings);
+        });
+    </script>
+</body>
+</html>

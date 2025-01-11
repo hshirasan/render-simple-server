@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        let blinkIntervalId;
+
+        // サーバーからの設定更新を受信
+        socket.on('update-display', (settings) => {
+            console.log('Received settings:', settings);
+
+            // 背景色を変更
+            document.body.style.backgroundColor = settings.color;
+
+            // 点滅処理を更新
+            if (blinkIntervalId) {
+                clearInterval(blinkIntervalId);
+            }
+            blinkIntervalId = setInterval(() => {
+                document.body.style.backgroundColor =
+                    document.body.style.backgroundColor === 'black' ? settings.color : 'black';
+            }, settings.blinkInterval);
+        });
+    </script>
+</body>
+</html>

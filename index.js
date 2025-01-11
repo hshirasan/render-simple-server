@@ -1,25 +1,35 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
 const PORT = process.env.PORT || 3000;
 
-// JSONリクエストを解析するミドルウェア
-app.use(express.json());
+// 静的ファイルの提供（必要に応じてフロントエンドをホスティング）
+app.use(express.static('public'));
 
-// シンプルなルート
-app.get('/', (req, res) => {
-    res.send('Hello, World! 今井優！！！！！！！！！！！');
+// WebSocket接続の管理
+io.on('connection', (socket) => {
+    console.log('A client connected:', socket.id);
+
+    // ホストから設定を受け取る
+    socket.on('update-settings', (settings) => {
+        console.log('Received settings from host:', settings);
+
+        // すべてのクライアントに設定を送信
+        socket.broadcast.emit('update-display', settings);
+    });
+
+    // 切断時の処理
+    socket.on('disconnect', () => {
+        console.log('A client disconnected:', socket.id);
+    });
 });
 
-// 動的なエンドポイント: 名前を受け取って挨拶を返す
-app.post('/greet', (req, res) => {
-    const { name } = req.body; // リクエストボディから名前を取得
-    if (!name) {
-        return res.status(400).json({ message: 'Name is required' }); // エラー応答
-    }
-    res.json({ message: `Hello, ${name}!` }); // 動的な応答
-});
-
-// サーバーを起動
-app.listen(PORT, () => {
+// サーバー起動
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
