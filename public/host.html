@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Host Panel</title>
+    <style>
+        /* 赤文字メッセージのスタイル */
+        #not-host-message {
+            color: red;
+            font-size: 18px;
+            margin-top: 20px;
+            display: none; /* 初期状態は非表示 */
+        }
+
+        fieldset {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>Host Panel</h1>
@@ -30,26 +43,58 @@
         <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
     </fieldset>
 
+    <!-- 非ホスト警告メッセージ -->
+    <div id="not-host-message">You are not the host.</div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        let isHost = false; // ホスト権限を持つかどうか
 
+        // 権限確認
+        socket.on('host-status', (status) => {
+            isHost = status.isHost;
+
+            // ホストではない場合、ラジオボタンを無効化
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach((radio) => {
+                radio.disabled = !isHost; // ホストでなければ無効化
+            });
+
+            // 非ホストメッセージの表示
+            const notHostMessage = document.getElementById('not-host-message');
+            if (!isHost) {
+                notHostMessage.style.display = 'block'; // メッセージを表示
+            } else {
+                notHostMessage.style.display = 'none'; // メッセージを非表示
+            }
+        });
+
+        // サーバーからの設定を受信してラジオボタンの状態を更新
+        socket.on('update-settings', (settings) => {
+            if (settings.color) {
+                const colorRadio = document.querySelector(`input[name="color"][value="${settings.color}"]`);
+                if (colorRadio) colorRadio.checked = true;
+            }
+            if (settings.blinkPattern) {
+                const blinkRadio = document.querySelector(`input[name="blink"][value="${settings.blinkPattern}"]`);
+                if (blinkRadio) blinkRadio.checked = true;
+            }
+        });
+
+        // ホストの設定変更を送信
         const updateSettings = () => {
+            if (!isHost) return; // ホストでなければ操作を無視
             const color = document.querySelector('input[name="color"]:checked')?.value;
             const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
 
             if (color && blinkPattern) {
-                const settings = { color, blinkPattern, timestamp: Date.now() };
-                socket.emit('update-settings', settings);
-                console.log('Settings sent:', settings);
+                socket.emit('update-settings', { color, blinkPattern });
             }
         };
 
-        // ラジオボタンにイベントリスナーを追加
-        document.querySelectorAll('input[name="color"]').forEach((radio) =>
-            radio.addEventListener('change', updateSettings)
-        );
-        document.querySelectorAll('input[name="blink"]').forEach((radio) =>
+        // ラジオボタンの変更イベント
+        document.querySelectorAll('input[type="radio"]').forEach((radio) =>
             radio.addEventListener('change', updateSettings)
         );
     </script>
