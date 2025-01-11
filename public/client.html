@@ -17,8 +17,8 @@
         /* QRコードのスタイル */
         #qr-code {
             position: absolute;
-            top: 100px;
-            left: 100px;
+            top: 50px;
+            left: 50px;
             width: 100px;
             height: 100px;
             display: none; /* 初期状態は非表示 */
@@ -51,7 +51,7 @@
             }
 
             const offset = Date.now() - timestamp; // サーバーとクライアントのタイムラグ
-            const initialDelay = blinkPattern === 'always' ? 0 : (500 - (offset % 500));
+            const initialDelay = blinkPattern === 'always' ? 0 : (1000 - (offset % 1000));
 
             switch (blinkPattern) {
                 case 'always':
@@ -62,19 +62,30 @@
 
                 case 'blink-100-400':
                 case 'blink-500-500':
-                case 'fade':
-                    qrCode.style.display = 'none'; // QRコードは非表示
+                    qrCode.style.display = 'none'; // 点滅時は非表示
+                    const interval = blinkPattern === 'blink-100-400' ? 500 : 1000;
                     animationInterval = setTimeout(() => {
                         animationInterval = setInterval(() => {
                             const isOn = document.body.style.backgroundColor === 'black';
                             document.body.style.backgroundColor = isOn ? color : 'black';
-                        }, blinkPattern === 'blink-100-400' ? 500 : 1000);
+                        }, interval);
+                    }, initialDelay);
+                    break;
+
+                case 'fade':
+                    qrCode.style.display = 'none'; // フェード時はQRコード非表示
+                    document.body.style.transition = 'background-color 0.5s ease-in-out';
+                    animationInterval = setTimeout(() => {
+                        animationInterval = setInterval(() => {
+                            const isBlack = document.body.style.backgroundColor === 'black';
+                            document.body.style.backgroundColor = isBlack ? color : 'black';
+                        }, 1000);
                     }, initialDelay);
                     break;
 
                 default:
                     console.error('Unknown blink pattern:', blinkPattern);
-                    qrCode.style.display = 'none';
+                    qrCode.style.display = 'none'; // 未知のパターンでは非表示
             }
         });
     </script>
