@@ -7,7 +7,7 @@ app.use(express.json());
 
 // シンプルなルート
 app.get('/', (req, res) => {
-    res.send('Hello, World! 今井優！');
+    res.send('Hello, World! 今井優！！！！！！！！！！！');
 });
 
 // 動的なエンドポイント: 名前を受け取って挨拶を返す
