@@ -53,4 +53,30 @@
             const offset = Date.now() - timestamp; // サーバーとクライアントのタイムラグ
             const initialDelay = blinkPattern === 'always' ? 0 : (500 - (offset % 500));
 
-            switch (blinkPattern)
+            switch (blinkPattern) {
+                case 'always':
+                    // 常時点灯
+                    document.body.style.backgroundColor = color;
+                    qrCode.style.display = 'block'; // QRコードを表示
+                    break;
+
+                case 'blink-100-400':
+                case 'blink-500-500':
+                case 'fade':
+                    qrCode.style.display = 'none'; // QRコードは非表示
+                    animationInterval = setTimeout(() => {
+                        animationInterval = setInterval(() => {
+                            const isOn = document.body.style.backgroundColor === 'black';
+                            document.body.style.backgroundColor = isOn ? color : 'black';
+                        }, blinkPattern === 'blink-100-400' ? 500 : 1000);
+                    }, initialDelay);
+                    break;
+
+                default:
+                    console.error('Unknown blink pattern:', blinkPattern);
+                    qrCode.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
