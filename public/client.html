@@ -24,11 +24,24 @@
             height: 100px;
             display: none; /* 初期状態は非表示 */
         }
+
+        /* PNG画像のスタイル */
+        #png-image {
+            position: absolute;
+            top: 50px;
+            left: 160px; /* QRコードの横に配置 */
+            width: 100px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
     </style>
 </head>
 <body>
     <!-- QRコード画像 -->
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
+
+    <!-- 固定PNG画像 -->
+    <img id="png-image" src="/1-you2-2-p-s.png" alt="Fixed PNG Image">
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -42,6 +55,7 @@
 
             const { color, blinkPattern } = settings;
             const qrCode = document.getElementById('qr-code');
+            const pngImage = document.getElementById('png-image');
 
             // 点滅処理をリセット
             if (animationInterval) {
@@ -50,18 +64,20 @@
             }
 
             qrCode.style.display = 'none'; // QRコードを初期状態で非表示
+            pngImage.style.display = 'none'; // PNG画像も初期状態で非表示
 
             switch (blinkPattern) {
                 case 'always':
                     // 常時点灯
                     document.body.style.backgroundColor = color;
                     qrCode.style.display = 'block'; // QRコードを表示
+                    pngImage.style.display = 'block'; // PNG画像を表示
                     break;
 
                 case 'blink-100-400':
                 case 'blink-500-500':
                 case 'fade':
-                    // 点滅時はQRコードを非表示にして背景色を切り替え
+                    // 点滅時はQRコードとPNG画像を非表示にして背景色を切り替え
                     animationInterval = setInterval(() => {
                         const isBlack = document.body.style.backgroundColor === 'black';
                         document.body.style.backgroundColor = isBlack ? color : 'black';
@@ -73,6 +89,9 @@
                     document.body.style.backgroundColor = 'black'; // 初期状態に戻す
             }
         });
+
+        // 初期設定の送信（赤と常時点灯）
+        socket.emit('update-settings', { color: 'red', blinkPattern: 'always' });
     </script>
 </body>
 </html>

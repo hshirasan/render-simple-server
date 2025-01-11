@@ -24,7 +24,7 @@
     <!-- 色選択 -->
     <fieldset>
         <legend>Select Color:</legend>
-        <label><input type="radio" name="color" value="red"> Red</label>
+        <label><input type="radio" name="color" value="red" checked> Red</label>
         <label><input type="radio" name="color" value="yellow"> Yellow</label>
         <label><input type="radio" name="color" value="pink"> Pink</label>
         <label><input type="radio" name="color" value="green"> Green</label>
@@ -37,7 +37,7 @@
     <!-- 点滅パターン選択 -->
     <fieldset>
         <legend>Select Blink Pattern:</legend>
-        <label><input type="radio" name="blink" value="always"> Always On</label>
+        <label><input type="radio" name="blink" value="always" checked> Always On</label>
         <label><input type="radio" name="blink" value="blink-100-400"> 100ms On / 400ms Off</label>
         <label><input type="radio" name="blink" value="blink-500-500"> 500ms On / 500ms Off</label>
         <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
@@ -68,6 +68,11 @@
             // 非ホストメッセージの表示
             const notHostMessage = document.getElementById('not-host-message');
             notHostMessage.style.display = isHost ? 'none' : 'block';
+
+            // ホストなら初期設定を送信
+            if (isHost) {
+                updateSettings(); // 初期設定を反映
+            }
         });
 
         // ホストの設定変更を送信
