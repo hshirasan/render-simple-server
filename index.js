@@ -21,15 +21,15 @@ let currentSettings = { color: 'black', blinkPattern: 'always', timestamp: Date.
 io.on('connection', (socket) => {
     console.log(`Connection from socket: ${socket.id}`);
 
-    // ホストがいない場合、新しい接続者をホストに設定
-    if (!hostSocketId) {
-        hostSocketId = socket.id;
-        console.log(`Host assigned: ${hostSocketId}`);
-    }
-
-    // ホストステータスをクライアントに通知
-    const isHost = socket.id === hostSocketId;
-    socket.emit('host-status', { isHost });
+    // クライアントがホスト権限を要求
+    socket.on('request-host', () => {
+        if (!hostSocketId) {
+            hostSocketId = socket.id;
+            console.log(`Host assigned upon request: ${hostSocketId}`);
+        }
+        const isHost = socket.id === hostSocketId;
+        socket.emit('host-status', { isHost });
+    });
 
     // クライアントが接続した際に最新設定を送信
     socket.emit('update-display', currentSettings);
@@ -44,18 +44,6 @@ io.on('connection', (socket) => {
             io.emit('update-display', currentSettings); // すべてのクライアントに設定を送信
         } else {
             console.log('Unauthorized settings update attempt.');
-        }
-    });
-
-    // クライアントがホスト権限を要求
-    socket.on('request-host', () => {
-        if (!hostSocketId) {
-            hostSocketId = socket.id;
-            console.log(`Host assigned upon request: ${hostSocketId}`);
-            socket.emit('host-status', { isHost: true });
-        } else {
-            const isRequesterHost = socket.id === hostSocketId;
-            socket.emit('host-status', { isHost: isRequesterHost });
         }
     });
 

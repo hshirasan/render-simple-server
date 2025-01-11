@@ -70,18 +70,6 @@
             notHostMessage.style.display = isHost ? 'none' : 'block';
         });
 
-        // サーバーからの設定を受信してラジオボタンの状態を更新
-        socket.on('update-settings', (settings) => {
-            if (settings.color) {
-                const colorRadio = document.querySelector(`input[name="color"][value="${settings.color}"]`);
-                if (colorRadio) colorRadio.checked = true;
-            }
-            if (settings.blinkPattern) {
-                const blinkRadio = document.querySelector(`input[name="blink"][value="${settings.blinkPattern}"]`);
-                if (blinkRadio) blinkRadio.checked = true;
-            }
-        });
-
         // ホストの設定変更を送信
         const updateSettings = () => {
             if (!isHost) return; // ホストでなければ操作を無視
