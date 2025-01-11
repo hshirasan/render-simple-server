@@ -23,6 +23,7 @@ io.on('connection', (socket) => {
 
     // ホストから設定を受け取る
     socket.on('update-settings', (settings) => {
+        settings.timestamp = Date.now(); // タイムスタンプを付与
         console.log('Received settings from host:', settings);
         currentSettings = settings; // 最新設定を更新
 
