@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 3000;
 
 // シンプルなルート
 app.get('/', (req, res) => {
-    res.send('Hello, World!  yoyou!!');
+    res.send('Hello, World!  maimai!!');
 });
 
 app.listen(PORT, () => {
