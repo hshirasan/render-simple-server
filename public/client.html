@@ -13,6 +13,7 @@
             align-items: center;
             position: relative;
             background-color: black; /* 初期状態を黒に設定 */
+            transition: background-color 0.5s ease-in-out; /* フェード用のトランジション */
         }
 
         /* QRコードのスタイル */
@@ -23,11 +24,6 @@
             width: 100px;
             height: 100px;
             display: none; /* 初期状態は非表示 */
-        }
-
-        /* transition専用のクラス */
-        .fade {
-            transition: background-color 0.5s ease-in-out; /* フェード用 */
         }
     </style>
 </head>
@@ -53,39 +49,38 @@
                 clearInterval(animationInterval);
                 animationInterval = null;
             }
-            document.body.classList.remove('fade'); // フェードクラスを初期化
             qrCode.style.display = 'none'; // QRコードを非表示
+
+            // フェードイン・アウトを時間パターンごとに設定
+            let interval = 1000; // デフォルト値（1秒ごと切り替え）
 
             switch (blinkPattern) {
                 case 'always':
-                    // 常時点灯
                     document.body.style.backgroundColor = color;
                     qrCode.style.display = 'block'; // QRコードを表示
-                    break;
+                    return; // 常時点灯のためループ処理不要
 
                 case 'blink-100-400':
+                    interval = 500; // 約0.5秒で切り替え
+                    break;
+
                 case 'blink-500-500':
-                    // 点滅パターン
-                    const interval = blinkPattern === 'blink-100-400' ? 500 : 1000;
-                    animationInterval = setInterval(() => {
-                        const isBlack = document.body.style.backgroundColor === 'black';
-                        document.body.style.backgroundColor = isBlack ? color : 'black';
-                    }, interval);
+                    interval = 1000; // 1秒で切り替え
                     break;
 
                 case 'fade':
-                    // フェードイン・アウト
-                    document.body.classList.add('fade'); // フェードクラスを追加
-                    animationInterval = setInterval(() => {
-                        const isBlack = document.body.style.backgroundColor === 'black';
-                        document.body.style.backgroundColor = isBlack ? color : 'black';
-                    }, 1000);
+                    interval = 1000; // フェードイン・アウトのデフォルト
                     break;
 
                 default:
                     console.error('Unknown blink pattern:', blinkPattern);
-                    document.body.style.backgroundColor = 'black'; // 初期状態に戻す
             }
+
+            // フェードイン・アウト処理
+            animationInterval = setInterval(() => {
+                const isBlack = document.body.style.backgroundColor === 'black';
+                document.body.style.backgroundColor = isBlack ? color : 'black';
+            }, interval);
         });
     </script>
 </body>
