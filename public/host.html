@@ -5,14 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Host Panel</title>
     <style>
-        /* 赤文字メッセージのスタイル */
-        #not-host-message {
-            color: red;
-            font-size: 18px;
-            margin-top: 20px;
-            display: none; /* 初期状態は非表示 */
-        }
-
         fieldset {
             margin-bottom: 20px;
         }
@@ -43,41 +35,12 @@
         <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
     </fieldset>
 
-    <!-- 非ホスト警告メッセージ -->
-    <div id="not-host-message">You are not the host.</div>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
-        let isHost = false; // ホスト権限を持つかどうか
-
-        // ホスト権限のリクエスト
-        socket.emit('request-host');
-
-        // ホストステータスを受信
-        socket.on('host-status', (status) => {
-            isHost = status.isHost;
-
-            // ホストではない場合、ラジオボタンを無効化
-            const radioButtons = document.querySelectorAll('input[type="radio"]');
-            radioButtons.forEach((radio) => {
-                radio.disabled = !isHost; // ホストでなければ無効化
-            });
-
-            // 非ホストメッセージの表示
-            const notHostMessage = document.getElementById('not-host-message');
-            notHostMessage.style.display = isHost ? 'none' : 'block';
-
-            // ホストなら初期設定を送信
-            if (isHost) {
-                updateSettings(); // 初期設定を反映
-            }
-        });
-
         // ホストの設定変更を送信
         const updateSettings = () => {
-            if (!isHost) return; // ホストでなければ操作を無視
             const color = document.querySelector('input[name="color"]:checked')?.value;
             const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
 

@@ -11,55 +11,28 @@ const PORT = process.env.PORT || 3000;
 // 静的ファイルの提供
 app.use(express.static('public'));
 
-// 現在のホストを保持
-let hostSocketId = null;
-
 // 現在の設定を保持する変数
-let currentSettings = { color: 'black', blinkPattern: 'always', timestamp: Date.now() };
+let currentSettings = { color: 'red', blinkPattern: 'always', timestamp: Date.now() };
 
 // WebSocket接続の管理
 io.on('connection', (socket) => {
     console.log(`Connection from socket: ${socket.id}`);
 
-    // クライアントがホスト権限を要求
-    socket.on('request-host', () => {
-        if (!hostSocketId) {
-            hostSocketId = socket.id;
-            console.log(`Host assigned upon request: ${hostSocketId}`);
-        }
-        const isHost = socket.id === hostSocketId;
-        socket.emit('host-status', { isHost });
-    });
-
     // クライアントが接続した際に最新設定を送信
     socket.emit('update-display', currentSettings);
 
-    // ホストが設定を更新
+    // クライアントが設定を更新
     socket.on('update-settings', (settings) => {
-        if (socket.id === hostSocketId) {
-            settings.timestamp = Date.now(); // タイムスタンプを追加
-            console.log('Received settings from host:', settings);
+        settings.timestamp = Date.now(); // タイムスタンプを追加
+        console.log('Received settings:', settings);
 
-            currentSettings = settings; // 最新設定を保存
-            io.emit('update-display', currentSettings); // すべてのクライアントに設定を送信
-        } else {
-            console.log('Unauthorized settings update attempt.');
-        }
+        currentSettings = settings; // 最新設定を保存
+        io.emit('update-display', currentSettings); // すべてのクライアントに設定を送信
     });
 
-    // 切断時
+    // 切断時（特に管理を行わない）
     socket.on('disconnect', () => {
         console.log(`Socket disconnected: ${socket.id}`);
-
-        if (socket.id === hostSocketId) {
-            console.log('Host disconnected. Releasing host control.');
-            hostSocketId = null; // ホスト権限を解除
-        }
-
-        // 現在のホストがいなくなった状態をログで確認
-        if (!hostSocketId) {
-            console.log('No host present. Waiting for new host connection...');
-        }
     });
 });
 
