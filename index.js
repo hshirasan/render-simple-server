@@ -9,7 +9,7 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
 // ハードコードされたパスワード
-const HOST_PASSWORD = '1134';
+const HOST_PASSWORD = 'securehostpassword';
 
 // 現在の設定を保持する変数
 let currentSettings = { color: 'red', blinkPattern: 'always', timestamp: Date.now() };

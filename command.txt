@@ -1,0 +1,4 @@
+git status
+git add .
+git commit -m "Update server and client functionality for host restriction"
+git push -u origin main
