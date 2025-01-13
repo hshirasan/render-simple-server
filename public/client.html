@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 4 -->
+<!-- Revision: 5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,6 +54,7 @@
         let animationInterval;
         let connectionCheckInterval;
         let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
+        const heartbeatTimeout = 10000; // 接続確認のタイムアウト時間
 
         // サーバーからの設定を受信
         socket.on('update-display', (settings) => {
@@ -80,44 +81,22 @@
             switch (blinkPattern) {
                 case 'always':
                     // 常時点灯
-                    setTimeout(() => {
-                        document.body.style.backgroundColor = color;
-                        qrCode.style.display = 'block';
-                        pngImage.style.display = 'block';
-                    }, 0);
+                    document.body.style.backgroundColor = color;
+                    qrCode.style.display = 'block';
+                    pngImage.style.display = 'block';
                     break;
 
                 case 'custom':
+                case 'blink-500-500':
+                case 'blink-250-250':
                     // カスタム点滅 (onTime, offTime)
-                    document.body.style.backgroundColor = color; // 初期状態を色に設定
+                    document.body.style.backgroundColor = color;
                     animationInterval = setInterval(() => {
                         document.body.style.backgroundColor = color;
                         setTimeout(() => {
                             document.body.style.backgroundColor = 'black';
                         }, onTime);
                     }, onTime + offTime);
-                    break;
-
-                case 'blink-500-500':
-                    // 500ms完全点灯、500ms完全消灯
-                    document.body.style.backgroundColor = color; // 初期状態を色に設定
-                    animationInterval = setInterval(() => {
-                        document.body.style.backgroundColor = color;
-                        setTimeout(() => {
-                            document.body.style.backgroundColor = 'black';
-                        }, 500);
-                    }, 1000); // 1000ms周期
-                    break;
-
-                case 'blink-250-250':
-                    // 250ms完全点灯、250ms完全消灯
-                    document.body.style.backgroundColor = color; // 初期状態を色に設定
-                    animationInterval = setInterval(() => {
-                        document.body.style.backgroundColor = color;
-                        setTimeout(() => {
-                            document.body.style.backgroundColor = 'black';
-                        }, 250);
-                    }, 500); // 500ms周期
                     break;
 
                 case 'fade':
@@ -144,11 +123,11 @@
         // 接続状態の確認
         connectionCheckInterval = setInterval(() => {
             const now = Date.now();
-            if (now - lastServerResponse > 5000) { // サーバー応答が5秒以上ない場合
+            if (now - lastServerResponse > heartbeatTimeout) { // サーバー応答がタイムアウト
                 console.warn('Connection lost. Switching to black.');
                 document.body.style.backgroundColor = 'black';
                 if (animationInterval) {
-                    clearInterval(animationInterval);
+                    clearInterval(animationInterval); // 点滅処理をリセット
                     animationInterval = null;
                 }
                 qrCode.style.display = 'none';
