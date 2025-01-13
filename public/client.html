@@ -76,11 +76,11 @@
             switch (blinkPattern) {
                 case 'always':
                     // 常時点灯
+                    clearInterval(animationInterval); // 点滅処理を完全に停止
+                    animationInterval = null;
                     document.body.style.backgroundColor = color;
                     qrCode.style.display = 'block'; // QRコードを表示
                     pngImage.style.display = 'block'; // PNG画像を表示
-                    clearInterval(animationInterval); // 点滅処理を完全に無効化
-                    animationInterval = null;
                     break;
 
                 case 'custom':
