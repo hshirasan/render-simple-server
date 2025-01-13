@@ -76,6 +76,7 @@
                     passwordPrompt.style.display = 'none'; // パスワード入力画面を非表示
                     hostPanel.style.display = 'block'; // ホストパネルを表示
                 } else {
+                    errorMessage.textContent = response.message || 'Invalid password.';
                     errorMessage.style.display = 'block'; // エラーメッセージを表示
                 }
             });
