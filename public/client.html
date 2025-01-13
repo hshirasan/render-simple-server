@@ -99,6 +99,12 @@
             }
         });
 
+        // 心拍信号を受信して接続状態を維持
+        socket.on('heartbeat', (data) => {
+            console.log('Heartbeat received:', data);
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
+        });
+
         // 接続状態の確認
         connectionCheckInterval = setInterval(() => {
             const now = Date.now();

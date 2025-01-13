@@ -51,6 +51,11 @@ io.on('connection', (socket) => {
     });
 });
 
+// クライアントに定期的に心拍信号を送信
+setInterval(() => {
+    io.emit('heartbeat', { timestamp: Date.now() });
+}, 3000); // 3秒ごとに送信
+
 // サーバー起動
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
