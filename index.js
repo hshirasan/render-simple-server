@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static('public')); // `public` フォルダを静的ファイル用に指定
 
 // ハードコードされたパスワード
-const HOST_PASSWORD = 'securehostpassword';
+const HOST_PASSWORD = '1134';
 
 // 現在の設定を保持する変数
 let currentSettings = { color: 'red', blinkPattern: 'always', timestamp: Date.now() };
