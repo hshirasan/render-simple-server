@@ -11,24 +11,29 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
+// 固定パスワード
+const HOST_PASSWORD = '1134';
+
 // 静的ファイルの提供
 app.use(express.static('public'));
 
 // 現在の設定を保持する変数
 let currentSettings = { color: 'black', blinkPattern: 'none', timestamp: Date.now() };
 
-// エラーハンドリング
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
 // WebSocket接続の管理
 io.on('connection', (socket) => {
     console.log(`Client connected: ${socket.id}`);
+
+    // パスワード認証
+    socket.on('authenticate-host', (password, callback) => {
+        if (password === HOST_PASSWORD) {
+            console.log('Host authenticated successfully.');
+            callback({ success: true });
+        } else {
+            console.log('Host authentication failed.');
+            callback({ success: false, message: 'Invalid password.' });
+        }
+    });
 
     // クライアントに初期設定を送信
     socket.emit('update-display', currentSettings);
