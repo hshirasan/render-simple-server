@@ -70,16 +70,20 @@
                 animationInterval = null;
             }
 
-            qrCode.style.display = 'none'; // QRコードを初期状態で非表示
-            pngImage.style.display = 'none'; // PNG画像も初期状態で非表示
-            document.body.style.transition = ''; // トランジションをリセット
+            // 確実に背景色と表示を初期化
+            document.body.style.transition = '';
+            document.body.style.backgroundColor = 'black';
+            qrCode.style.display = 'none';
+            pngImage.style.display = 'none';
 
             switch (blinkPattern) {
                 case 'always':
                     // 常時点灯
-                    document.body.style.backgroundColor = color; // 即時背景色を適用
-                    qrCode.style.display = 'block'; // QRコードを表示
-                    pngImage.style.display = 'block'; // PNG画像を表示
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = color; // 即時背景色を適用
+                        qrCode.style.display = 'block'; // QRコードを表示
+                        pngImage.style.display = 'block'; // PNG画像を表示
+                    }, 0); // タイミング競合を防止
                     break;
 
                 case 'custom':
