@@ -22,7 +22,7 @@
     </style>
 </head>
 <body>
-    <!-- パスワード入力画面 -->111
+    <!-- パスワード入力画面 -->
     <div id="password-prompt">
         <h1>Enter Host Password</h1>
         <input type="password" id="password-input" placeholder="Password">
@@ -37,7 +37,8 @@
         <!-- 色選択 -->
         <fieldset>
             <legend>Select Color:</legend>
-            <label><input type="radio" name="color" value="red" checked> Red</label>
+            <label><input type="radio" name="color" value="null" checked> None</label>
+            <label><input type="radio" name="color" value="red"> Red</label>
             <label><input type="radio" name="color" value="yellow"> Yellow</label>
             <label><input type="radio" name="color" value="pink"> Pink</label>
             <label><input type="radio" name="color" value="green"> Green</label>
@@ -50,7 +51,8 @@
         <!-- 点滅パターン選択 -->
         <fieldset>
             <legend>Select Blink Pattern:</legend>
-            <label><input type="radio" name="blink" value="always" checked> Always On</label>
+            <label><input type="radio" name="blink" value="null" checked> None</label>
+            <label><input type="radio" name="blink" value="always"> Always On</label>
             <label><input type="radio" name="blink" value="blink-100-400"> 100ms On / 400ms Off</label>
             <label><input type="radio" name="blink" value="blink-500-500"> 500ms On / 500ms Off</label>
             <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
@@ -87,7 +89,7 @@
             const color = document.querySelector('input[name="color"]:checked')?.value;
             const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
 
-            if (color && blinkPattern) {
+            if (color !== 'null' && blinkPattern !== 'null') {
                 socket.emit('update-settings', { color, blinkPattern });
             }
         };
