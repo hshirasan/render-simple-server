@@ -13,7 +13,7 @@
             align-items: center;
             position: relative;
             background-color: black; /* 初期状態を黒に設定 */
-            transition: background-color 0.5s ease-in-out; /* フェードイン・アウト用 */
+            transition: background-color 0s; /* デフォルトでフェードを無効化 */
         }
 
         /* QRコードのスタイル */
@@ -84,21 +84,19 @@
                 case 'blink-250-250':
                     // 250ms完全点灯、250ms完全消灯
                     animationInterval = setInterval(() => {
-                        document.body.style.backgroundColor = color;
-                        setTimeout(() => {
-                            document.body.style.backgroundColor = 'black';
-                        }, 250);
-                    }, 500); // 500ms周期
+                        document.body.style.transition = 'background-color 0s'; // フェードを無効化
+                        document.body.style.backgroundColor =
+                            document.body.style.backgroundColor === 'black' ? color : 'black';
+                    }, 250); // 250ms周期
                     break;
 
                 case 'blink-500-500':
                     // 500ms完全点灯、500ms完全消灯
                     animationInterval = setInterval(() => {
-                        document.body.style.backgroundColor = color;
-                        setTimeout(() => {
-                            document.body.style.backgroundColor = 'black';
-                        }, 500);
-                    }, 1000); // 1000ms周期
+                        document.body.style.transition = 'background-color 0s'; // フェードを無効化
+                        document.body.style.backgroundColor =
+                            document.body.style.backgroundColor === 'black' ? color : 'black';
+                    }, 500); // 500ms周期
                     break;
 
                 case 'fade':
