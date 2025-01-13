@@ -16,7 +16,7 @@ const HOST_PASSWORD = '1134';
 
 // 現在の設定を保持する変数
 let currentSettings = { color: 'red', blinkPattern: 'always', timestamp: Date.now() };
-let currentHostId = null; // 現在のホストIDを管理
+let currentHostId = null; // 現在のホストIDを管理111
 
 // WebSocket接続の管理
 io.on('connection', (socket) => {
