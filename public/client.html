@@ -82,12 +82,12 @@
                     break;
 
                 case 'blink-100-400':
-                    // 100ms完全点灯、400ms完全消灯
+                    // 250ms完全点灯、250ms完全消灯に変更
                     animationInterval = setInterval(() => {
                         document.body.style.backgroundColor = color;
                         setTimeout(() => {
                             document.body.style.backgroundColor = 'black';
-                        }, 100); // 100ms点灯後黒に変更
+                        }, 250); // 250ms点灯後黒に変更
                     }, 500); // 500ms周期
                     break;
 
