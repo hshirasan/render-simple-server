@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 6 -->
+<!-- Revision: 7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +54,7 @@
         let animationInterval;
         let connectionCheckInterval;
         let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
-        const heartbeatTimeout = 15000; // 接続確認のタイムアウト時間を延長
+        const heartbeatTimeout = 5000; // 接続確認のタイムアウト時間
 
         // 点滅処理の実行関数
         const startBlinking = (color, onTime, offTime) => {
@@ -135,6 +135,8 @@
                     clearInterval(animationInterval); // 点滅処理をリセット
                     animationInterval = null;
                 }
+                const qrCode = document.getElementById('qr-code');
+                const pngImage = document.getElementById('png-image');
                 qrCode.style.display = 'none';
                 pngImage.style.display = 'none';
             }
