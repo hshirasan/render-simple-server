@@ -90,6 +90,7 @@
             const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
 
             if (color !== 'null' && blinkPattern !== 'null') {
+                console.log('Sending settings:', { color, blinkPattern });
                 socket.emit('update-settings', { color, blinkPattern });
             }
         };
