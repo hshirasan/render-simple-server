@@ -1,3 +1,4 @@
+<!-- Filename: host_blink_custom.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -86,14 +87,15 @@
             const color = document.querySelector('input[name="color"]:checked')?.value;
             const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
 
+            if (blinkPattern === 'none') {
+                console.log('No blink pattern selected. Nothing to send.');
+                return; // 何もしない
+            }
+
             let onTime = 250;
             let offTime = 250;
 
             switch (blinkPattern) {
-                case 'none':
-                    // Noneは何もしない
-                    socket.emit('update-settings', { color, blinkPattern });
-                    return;
                 case 'pattern1':
                     onTime = 100;
                     offTime = 400;
@@ -109,11 +111,18 @@
                 case 'fade':
                     // フェードは特殊処理として個別対応
                     socket.emit('update-settings', { color, blinkPattern });
+                    console.log('Sent settings:', { color, blinkPattern });
+                    return;
+                case 'always':
+                    // 常時点灯
+                    socket.emit('update-settings', { color, blinkPattern });
+                    console.log('Sent settings:', { color, blinkPattern });
                     return;
             }
 
             if (color !== 'null' && blinkPattern !== 'null') {
                 socket.emit('update-settings', { color, blinkPattern: 'custom', onTime, offTime });
+                console.log('Sent settings:', { color, blinkPattern: 'custom', onTime, offTime });
             }
         };
 
