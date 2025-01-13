@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 7 -->
+<!-- Revision: 8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,9 +51,8 @@
     <script>
         const socket = io();
 
-        let animationInterval;
-        let connectionCheckInterval;
-        let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
+        let animationInterval = null;
+        let lastSettings = null; // 最後に受信した設定
         const heartbeatTimeout = 5000; // 接続確認のタイムアウト時間
 
         // 点滅処理の実行関数
@@ -71,7 +70,13 @@
         socket.on('update-display', (settings) => {
             console.log('Received settings:', settings);
 
-            lastServerResponse = Date.now(); // サーバー応答時刻を更新
+            // 設定が変わらない場合は処理をスキップ
+            if (JSON.stringify(settings) === JSON.stringify(lastSettings)) {
+                console.log('No changes in settings. Skipping update.');
+                return;
+            }
+
+            lastSettings = settings; // 最新設定を保存
 
             const { color, blinkPattern, onTime = 250, offTime = 250 } = settings;
             const qrCode = document.getElementById('qr-code');
@@ -119,26 +124,18 @@
             }
         });
 
-        // 心拍信号を受信して接続状態を維持
-        socket.on('heartbeat', (data) => {
-            console.log('Heartbeat received:', data);
-            lastServerResponse = Date.now(); // サーバー応答時刻を更新
-        });
-
         // 接続状態の確認
-        connectionCheckInterval = setInterval(() => {
+        setInterval(() => {
             const now = Date.now();
-            if (now - lastServerResponse > heartbeatTimeout) { // サーバー応答がタイムアウト
+            if (now - lastSettings.timestamp > heartbeatTimeout) { // サーバー応答がタイムアウト
                 console.warn('Connection lost. Switching to black.');
                 document.body.style.backgroundColor = 'black';
                 if (animationInterval) {
                     clearInterval(animationInterval); // 点滅処理をリセット
                     animationInterval = null;
                 }
-                const qrCode = document.getElementById('qr-code');
-                const pngImage = document.getElementById('png-image');
-                qrCode.style.display = 'none';
-                pngImage.style.display = 'none';
+                document.getElementById('qr-code').style.display = 'none';
+                document.getElementById('png-image').style.display = 'none';
             }
         }, 1000);
     </script>
