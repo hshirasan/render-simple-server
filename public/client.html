@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 5 -->
+<!-- Revision: 6 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +54,18 @@
         let animationInterval;
         let connectionCheckInterval;
         let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
-        const heartbeatTimeout = 10000; // 接続確認のタイムアウト時間
+        const heartbeatTimeout = 15000; // 接続確認のタイムアウト時間を延長
+
+        // 点滅処理の実行関数
+        const startBlinking = (color, onTime, offTime) => {
+            if (animationInterval) clearInterval(animationInterval); // 既存のタイマーをリセット
+            animationInterval = setInterval(() => {
+                document.body.style.backgroundColor = color;
+                setTimeout(() => {
+                    document.body.style.backgroundColor = 'black';
+                }, onTime);
+            }, onTime + offTime);
+        };
 
         // サーバーからの設定を受信
         socket.on('update-display', (settings) => {
@@ -90,13 +101,7 @@
                 case 'blink-500-500':
                 case 'blink-250-250':
                     // カスタム点滅 (onTime, offTime)
-                    document.body.style.backgroundColor = color;
-                    animationInterval = setInterval(() => {
-                        document.body.style.backgroundColor = color;
-                        setTimeout(() => {
-                            document.body.style.backgroundColor = 'black';
-                        }, onTime);
-                    }, onTime + offTime);
+                    startBlinking(color, onTime, offTime);
                     break;
 
                 case 'fade':
@@ -130,8 +135,6 @@
                     clearInterval(animationInterval); // 点滅処理をリセット
                     animationInterval = null;
                 }
-
-
                 qrCode.style.display = 'none';
                 pngImage.style.display = 'none';
             }
