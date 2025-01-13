@@ -84,7 +84,6 @@
                 case 'blink-100-400':
                     // 100ms完全点灯、400ms完全消灯
                     animationInterval = setInterval(() => {
-                        document.body.style.transition = '';
                         document.body.style.backgroundColor = color;
                         setTimeout(() => {
                             document.body.style.backgroundColor = 'black';
@@ -95,7 +94,6 @@
                 case 'blink-500-500':
                     // 500ms完全点灯、500ms完全消灯
                     animationInterval = setInterval(() => {
-                        document.body.style.transition = '';
                         document.body.style.backgroundColor = color;
                         setTimeout(() => {
                             document.body.style.backgroundColor = 'black';
