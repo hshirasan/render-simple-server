@@ -3,119 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel</title>
+    <title>Client Display</title>
     <style>
-        fieldset {
-            margin-bottom: 20px;
-        }
-        #password-prompt {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        body {
+            margin: 0;
             height: 100vh;
-            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-color: black; /* 初期状態を黒に設定 */
+            transition: background-color 0s; /* デフォルトでフェードを無効化 */
         }
-        #host-panel {
-            display: none;
+
+        /* QRコードのスタイル */
+        #qr-code {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
+
+        /* PNG画像のスタイル */
+        #png-image {
+            position: absolute;
+            top: 50px;
+            left: 160px; /* QRコードの右 */
+            width: 200px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+            background-color: transparent; /* 背景を透明に設定 */
         }
     </style>
 </head>
 <body>
-    <!-- パスワード入力画面 -->
-    <div id="password-prompt">
-        <h1>Enter Host Password</h1>
-        <input type="password" id="password-input" placeholder="Password">
-        <button id="password-submit">Submit</button>
-        <p id="error-message" style="color: red; display: none;">Invalid password. Please try again.</p>
-    </div>
+    <!-- QRコード画像 -->
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
 
-    <!-- ホストパネル -->
-    <div id="host-panel">
-        <h1>Host Panel</h1>
-
-        <!-- 色選択 -->
-        <fieldset>
-            <legend>Select Color:</legend>
-            <label><input type="radio" name="color" value="null" checked> None</label>
-            <label><input type="radio" name="color" value="red"> Red</label>
-            <label><input type="radio" name="color" value="yellow"> Yellow</label>
-            <label><input type="radio" name="color" value="green"> Green</label>
-            <label><input type="radio" name="color" value="blue"> Blue</label>
-        </fieldset>
-
-        <!-- 点滅パターン選択 -->
-        <fieldset>
-            <legend>Select Blink Pattern:</legend>
-            <label><input type="radio" name="blink" value="always" checked> Always On</label>
-            <label><input type="radio" name="blink" value="pattern1"> Pattern 1 (100ms ON / 400ms OFF)</label>
-            <label><input type="radio" name="blink" value="pattern2"> Pattern 2 (250ms ON / 250ms OFF)</label>
-            <label><input type="radio" name="blink" value="pattern3"> Pattern 3 (400ms ON / 100ms OFF)</label>
-            <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
-        </fieldset>
-    </div>
+    <!-- 固定PNG画像 -->
+    <img id="png-image" src="/teamU.png" alt="Fixed PNG Image">
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
-        const passwordPrompt = document.getElementById('password-prompt');
-        const hostPanel = document.getElementById('host-panel');
-        const passwordInput = document.getElementById('password-input');
-        const passwordSubmit = document.getElementById('password-submit');
-        const errorMessage = document.getElementById('error-message');
+        let animationInterval;
+        let connectionCheckInterval;
+        let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
 
-        // パスワード送信イベント
-        passwordSubmit.addEventListener('click', () => {
-            const password = passwordInput.value;
+        // サーバーからの設定を受信
+        socket.on('update-display', (settings) => {
+            console.log('Received settings:', settings);
 
-            socket.emit('authenticate-host', password, (response) => {
-                if (response.success) {
-                    passwordPrompt.style.display = 'none'; // パスワード入力画面を非表示
-                    hostPanel.style.display = 'block'; // ホストパネルを表示
-                } else {
-                    errorMessage.textContent = response.message || 'Invalid password.';
-                    errorMessage.style.display = 'block'; // エラーメッセージを表示
-                }
-            });
-        });
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
 
-        // ホストの設定変更を送信
-        const updateSettings = () => {
-            const color = document.querySelector('input[name="color"]:checked')?.value;
-            const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
+            const { color, blinkPattern, onTime = 250, offTime = 250 } = settings;
+            const qrCode = document.getElementById('qr-code');
+            const pngImage = document.getElementById('png-image');
 
-            let onTime = 250;
-            let offTime = 250;
+            // 点滅処理をリセット
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+
+            qrCode.style.display = 'none'; // QRコードを初期状態で非表示
+            pngImage.style.display = 'none'; // PNG画像も初期状態で非表示
+            document.body.style.transition = ''; // トランジションをリセット
 
             switch (blinkPattern) {
-                case 'pattern1':
-                    onTime = 100;
-                    offTime = 400;
+                case 'always':
+                    // 常時点灯
+                    document.body.style.backgroundColor = color;
+                    qrCode.style.display = 'block'; // QRコードを表示
+                    pngImage.style.display = 'block'; // PNG画像を表示
                     break;
-                case 'pattern2':
-                    onTime = 250;
-                    offTime = 250;
+
+                case 'custom':
+                    // カスタム点滅 (onTime, offTime)
+                    animationInterval = setInterval(() => {
+                        document.body.style.transition = 'background-color 0s'; // フェードを無効化
+                        document.body.style.backgroundColor = color;
+                        setTimeout(() => {
+                            document.body.style.backgroundColor = 'black';
+                        }, onTime);
+                    }, onTime + offTime); // ON + OFFの合計時間で周期設定
                     break;
-                case 'pattern3':
-                    onTime = 400;
-                    offTime = 100;
-                    break;
+
                 case 'fade':
-                    // フェードは特殊処理として個別対応
-                    socket.emit('update-settings', { color, blinkPattern });
-                    return;
-            }
+                    // 500msフェードイン、500msフェードアウト
+                    document.body.style.transition = 'background-color 0.5s ease-in-out';
+                    animationInterval = setInterval(() => {
+                        const isBlack = document.body.style.backgroundColor === 'black';
+                        document.body.style.backgroundColor = isBlack ? color : 'black';
+                    }, 1000); // 1000ms周期
+                    break;
 
-            if (color !== 'null' && blinkPattern !== 'null') {
-                socket.emit('update-settings', { color, blinkPattern: 'custom', onTime, offTime });
-            }
-        };
+                case 'none':
+                    // 初期値：何もしない
+                    document.body.style.backgroundColor = 'black';
+                    break;
 
-        // ラジオボタンの変更イベント
-        document.querySelectorAll('input[type="radio"]').forEach((radio) =>
-            radio.addEventListener('change', updateSettings)
-        );
+                default:
+                    console.error('Unknown blink pattern:', blinkPattern);
+                    document.body.style.backgroundColor = 'black'; // 初期状態に戻す
+            }
+        });
+
+        // 心拍信号を受信して接続状態を維持
+        socket.on('heartbeat', (data) => {
+            console.log('Heartbeat received:', data);
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
+        });
+
+        // 接続状態の確認
+        connectionCheckInterval = setInterval(() => {
+            const now = Date.now();
+            if (now - lastServerResponse > 5000) { // サーバー応答が5秒以上ない場合
+                console.warn('Connection lost. Switching to black.');
+                document.body.style.backgroundColor = 'black'; // 画面を真っ黒にする
+                if (animationInterval) {
+                    clearInterval(animationInterval); // 点滅処理をリセット
+                    animationInterval = null;
+                }
+                const qrCode = document.getElementById('qr-code');
+                const pngImage = document.getElementById('png-image');
+                qrCode.style.display = 'none';
+                pngImage.style.display = 'none';
+            }
+        }, 1000); // 1秒ごとに接続を確認
     </script>
 </body>
 </html>
