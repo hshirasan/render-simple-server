@@ -50,10 +50,14 @@
         const socket = io();
 
         let animationInterval;
+        let connectionCheckInterval;
+        let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
 
         // サーバーからの設定を受信
         socket.on('update-display', (settings) => {
             console.log('Received settings:', settings);
+
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
 
             const { color, blinkPattern } = settings;
             const qrCode = document.getElementById('qr-code');
@@ -94,6 +98,23 @@
                     document.body.style.backgroundColor = 'black'; // 初期状態に戻す
             }
         });
+
+        // 接続状態の確認
+        connectionCheckInterval = setInterval(() => {
+            const now = Date.now();
+            if (now - lastServerResponse > 5000) { // サーバー応答が5秒以上ない場合
+                console.warn('Connection lost. Switching to black.');
+                document.body.style.backgroundColor = 'black'; // 画面を真っ黒にする
+                if (animationInterval) {
+                    clearInterval(animationInterval); // 点滅処理をリセット
+                    animationInterval = null;
+                }
+                const qrCode = document.getElementById('qr-code');
+                const pngImage = document.getElementById('png-image');
+                qrCode.style.display = 'none';
+                pngImage.style.display = 'none';
+            }
+        }, 1000); // 1秒ごとに接続を確認
     </script>
 </body>
 </html>
