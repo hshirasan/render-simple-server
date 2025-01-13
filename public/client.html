@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 2 -->
+<!-- Revision: 3 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,8 +32,7 @@
         #png-image {
             position: absolute;
             top: 50px;
-            left: 160px; /* QRコードの右 */
-            width: 200px;
+            left: 160px; /* QRコードの右 */\n            width: 200px;
             height: 100px;
             display: none; /* 初期状態は非表示 */
             background-color: transparent; /* 背景を透明に設定 */
@@ -71,7 +70,7 @@
                 animationInterval = null;
             }
 
-            // 確実に背景色と表示を初期化
+            // 初期化
             document.body.style.transition = '';
             document.body.style.backgroundColor = 'black';
             qrCode.style.display = 'none';
@@ -81,14 +80,15 @@
                 case 'always':
                     // 常時点灯
                     setTimeout(() => {
-                        document.body.style.backgroundColor = color; // 即時背景色を適用
-                        qrCode.style.display = 'block'; // QRコードを表示
-                        pngImage.style.display = 'block'; // PNG画像を表示
+                        document.body.style.backgroundColor = color;
+                        qrCode.style.display = 'block';
+                        pngImage.style.display = 'block';
                     }, 0);
                     break;
 
                 case 'custom':
                     // カスタム点滅 (onTime, offTime)
+                    document.body.style.backgroundColor = color; // 初期状態を色に設定
                     animationInterval = setInterval(() => {
                         document.body.style.backgroundColor = color;
                         setTimeout(() => {
@@ -123,9 +123,9 @@
             const now = Date.now();
             if (now - lastServerResponse > 5000) { // サーバー応答が5秒以上ない場合
                 console.warn('Connection lost. Switching to black.');
-                document.body.style.backgroundColor = 'black'; // 画面を真っ黒にする
+                document.body.style.backgroundColor = 'black';
                 if (animationInterval) {
-                    clearInterval(animationInterval); // 点滅処理をリセット
+                    clearInterval(animationInterval);
                     animationInterval = null;
                 }
                 qrCode.style.display = 'none';
