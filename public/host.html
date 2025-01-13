@@ -1,4 +1,5 @@
-<!-- Filename: host_blink_custom.html -->
+<!-- Filename: host_blink_update.html -->
+<!-- Revision: 1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +42,11 @@
             <label><input type="radio" name="color" value="null" checked> None</label>
             <label><input type="radio" name="color" value="red"> Red</label>
             <label><input type="radio" name="color" value="yellow"> Yellow</label>
+            <label><input type="radio" name="color" value="pink"> Pink</label>
             <label><input type="radio" name="color" value="green"> Green</label>
+            <label><input type="radio" name="color" value="purple"> Purple</label>
+            <label><input type="radio" name="color" value="white"> White</label>
+            <label><input type="radio" name="color" value="cyan"> Cyan</label>
             <label><input type="radio" name="color" value="blue"> Blue</label>
         </fieldset>
 
@@ -50,9 +55,8 @@
             <legend>Select Blink Pattern:</legend>
             <label><input type="radio" name="blink" value="none" checked> None</label>
             <label><input type="radio" name="blink" value="always"> Always On</label>
-            <label><input type="radio" name="blink" value="pattern1"> Pattern 1 (100ms ON / 400ms OFF)</label>
-            <label><input type="radio" name="blink" value="pattern2"> Pattern 2 (250ms ON / 250ms OFF)</label>
-            <label><input type="radio" name="blink" value="pattern3"> Pattern 3 (400ms ON / 100ms OFF)</label>
+            <label><input type="radio" name="blink" value="blink-250-250"> 250ms On / 250ms Off</label>
+            <label><input type="radio" name="blink" value="blink-500-500"> 500ms On / 500ms Off</label>
             <label><input type="radio" name="blink" value="fade"> 500ms Fade In / 500ms Fade Out</label>
         </fieldset>
     </div>
@@ -87,42 +91,8 @@
             const color = document.querySelector('input[name="color"]:checked')?.value;
             const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
 
-            if (blinkPattern === 'none') {
-                console.log('No blink pattern selected. Nothing to send.');
-                return; // 何もしない
-            }
-
-            let onTime = 250;
-            let offTime = 250;
-
-            switch (blinkPattern) {
-                case 'pattern1':
-                    onTime = 100;
-                    offTime = 400;
-                    break;
-                case 'pattern2':
-                    onTime = 250;
-                    offTime = 250;
-                    break;
-                case 'pattern3':
-                    onTime = 400;
-                    offTime = 100;
-                    break;
-                case 'fade':
-                    // フェードは特殊処理として個別対応
-                    socket.emit('update-settings', { color, blinkPattern });
-                    console.log('Sent settings:', { color, blinkPattern });
-                    return;
-                case 'always':
-                    // 常時点灯
-                    socket.emit('update-settings', { color, blinkPattern });
-                    console.log('Sent settings:', { color, blinkPattern });
-                    return;
-            }
-
             if (color !== 'null' && blinkPattern !== 'null') {
-                socket.emit('update-settings', { color, blinkPattern: 'custom', onTime, offTime });
-                console.log('Sent settings:', { color, blinkPattern: 'custom', onTime, offTime });
+                socket.emit('update-settings', { color, blinkPattern });
             }
         };
 
