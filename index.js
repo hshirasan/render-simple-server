@@ -9,52 +9,60 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
 // 静的ファイルの提供
-app.use(express.static('public')); // `public` フォルダを静的ファイル用に指定
+app.use(express.static('public'));
 
 // ハードコードされたパスワード
 const HOST_PASSWORD = '1134';
 
 // 現在の設定を保持する変数
 let currentSettings = { color: 'red', blinkPattern: 'always', timestamp: Date.now() };
+let currentHostId = null; // 現在のホストIDを管理
 
 // WebSocket接続の管理
 io.on('connection', (socket) => {
     console.log(`Connection from socket: ${socket.id}`);
 
-    // ホスト認証の処理
+    // ホスト認証
     socket.on('authenticate-host', (password, callback) => {
         if (password === HOST_PASSWORD) {
+            currentHostId = socket.id; // ホストIDを設定
             console.log(`Host authenticated: ${socket.id}`);
             callback({ success: true });
         } else {
             console.log(`Host authentication failed: ${socket.id}`);
             callback({ success: false, message: 'Invalid password' });
-            socket.disconnect(); // 認証失敗時に接続を切断
+            socket.disconnect();
         }
     });
 
-    // クライアントが接続した際に最新設定を送信
+    // 初期設定を送信
     socket.emit('update-display', currentSettings);
 
-    // クライアントが設定を更新
+    // 設定の更新（ホストのみ許可）
     socket.on('update-settings', (settings) => {
-        settings.timestamp = Date.now(); // タイムスタンプを追加
-        console.log('Received settings:', settings);
+        if (socket.id !== currentHostId) {
+            console.warn(`Non-host socket ${socket.id} attempted to update settings.`);
+            return; // ホスト以外は無視
+        }
 
-        currentSettings = settings; // 最新設定を保存
-        io.emit('update-display', currentSettings); // すべてのクライアントに設定を送信
+        settings.timestamp = Date.now();
+        currentSettings = settings;
+        io.emit('update-display', currentSettings);
     });
 
-    // 切断時
+    // クライアント切断時の処理
     socket.on('disconnect', () => {
-        console.log(`Socket disconnected: ${socket.id}`);
+        if (socket.id === currentHostId) {
+            console.log(`Host disconnected: ${socket.id}`);
+            currentHostId = null; // ホスト権限をリセット
+        }
     });
 });
 
-// クライアントに定期的に心拍信号を送信
+// 定期的な心拍信号を送信
 setInterval(() => {
     io.emit('heartbeat', { timestamp: Date.now() });
-}, 3000); // 3秒ごとに送信
+}, 3000);
 
 // サーバー起動
 server.listen(PORT, () => {
