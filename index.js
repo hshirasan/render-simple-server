@@ -1,5 +1,5 @@
 // Filename: server_code.js
-// Revision: 1
+// Revision: 2
 
 const express = require('express');
 const http = require('http');
@@ -16,6 +16,15 @@ app.use(express.static('public'));
 
 // 現在の設定を保持する変数
 let currentSettings = { color: 'black', blinkPattern: 'none', timestamp: Date.now() };
+
+// エラーハンドリング
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 // WebSocket接続の管理
 io.on('connection', (socket) => {
