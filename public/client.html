@@ -101,6 +101,11 @@
                     }, 1000); // 1000ms周期
                     break;
 
+                case 'none':
+                    // 初期値：何もしない
+                    document.body.style.backgroundColor = 'black';
+                    break;
+
                 default:
                     console.error('Unknown blink pattern:', blinkPattern);
                     document.body.style.backgroundColor = 'black'; // 初期状態に戻す
