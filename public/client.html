@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 1 -->
+<!-- Revision: 2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,18 +84,17 @@
                         document.body.style.backgroundColor = color; // 即時背景色を適用
                         qrCode.style.display = 'block'; // QRコードを表示
                         pngImage.style.display = 'block'; // PNG画像を表示
-                    }, 0); // タイミング競合を防止
+                    }, 0);
                     break;
 
                 case 'custom':
                     // カスタム点滅 (onTime, offTime)
                     animationInterval = setInterval(() => {
-                        document.body.style.transition = 'background-color 0s'; // フェードを無効化
                         document.body.style.backgroundColor = color;
                         setTimeout(() => {
                             document.body.style.backgroundColor = 'black';
                         }, onTime);
-                    }, onTime + offTime); // ON + OFFの合計時間で周期設定
+                    }, onTime + offTime);
                     break;
 
                 case 'fade':
@@ -104,7 +103,7 @@
                     animationInterval = setInterval(() => {
                         const isBlack = document.body.style.backgroundColor === 'black';
                         document.body.style.backgroundColor = isBlack ? color : 'black';
-                    }, 1000); // 1000ms周期
+                    }, 1000);
                     break;
 
                 default:
@@ -129,12 +128,10 @@
                     clearInterval(animationInterval); // 点滅処理をリセット
                     animationInterval = null;
                 }
-                const qrCode = document.getElementById('qr-code');
-                const pngImage = document.getElementById('png-image');
                 qrCode.style.display = 'none';
                 pngImage.style.display = 'none';
             }
-        }, 1000); // 1秒ごとに接続を確認
+        }, 1000);
     </script>
 </body>
 </html>
