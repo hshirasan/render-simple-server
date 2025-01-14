@@ -12,6 +12,11 @@
             display: block;
             margin-bottom: 10px;
         }
+        .sequence-comment {
+            display: block;
+            margin-top: 5px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -93,6 +98,7 @@
                                 <option value="fade">Fade In / Fade Out</option>
                                 <option value="always">Always On</option>
                             </select>
+                            <input type="text" id="comment-${song}-${scene}" class="sequence-comment" placeholder="シーンの説明を入力...">
                         </label>
                     `);
                 }
@@ -110,11 +116,12 @@
                 const [_, song, scene] = radio.value.split('-');
                 const color = document.getElementById(`color-${song}-${scene}`).value;
                 const pattern = document.getElementById(`pattern-${song}-${scene}`).value;
+                const comment = document.getElementById(`comment-${song}-${scene}`).value;
 
-                console.log(`Sending settings for Song ${song}, Scene ${scene}: Color=${color}, Pattern=${pattern}`);
+                console.log(`Sending settings for Song ${song}, Scene ${scene}: Color=${color}, Pattern=${pattern}, Comment=${comment}`);
 
                 // サーバーに設定を送信
-                socket.emit('update-settings', { color, blinkPattern: pattern });
+                socket.emit('update-settings', { color, blinkPattern: pattern, comment });
             });
         });
 
