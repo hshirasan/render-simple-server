@@ -1,5 +1,5 @@
 <!-- Filename: host_panel_with_manual_control.html -->
-<!-- Revision: 1 -->
+<!-- Revision: 2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,13 +10,49 @@
         fieldset {
             margin-bottom: 20px;
         }
+        .sequence-control label {
+            display: block;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Manual Sequence Control</h1>
+    <h1>Host Panel with Manual Control</h1>
+
+    <!-- 元々の色指定とパターン指定 -->
     <fieldset>
-        <legend>Sequence Settings</legend>
-        <!-- 実行用ラジオボタン① -->
+        <legend>Color and Pattern Settings</legend>
+        <label>
+            <input type="radio" name="color" value="red"> Red
+        </label>
+        <label>
+            <input type="radio" name="color" value="blue"> Blue
+        </label>
+        <label>
+            <input type="radio" name="color" value="green"> Green
+        </label>
+        <label>
+            <input type="radio" name="color" value="white"> White
+        </label>
+
+        <label>
+            <input type="radio" name="blink" value="blink-250-250"> 250ms On / 250ms Off
+        </label>
+        <label>
+            <input type="radio" name="blink" value="blink-500-500"> 500ms On / 500ms Off
+        </label>
+        <label>
+            <input type="radio" name="blink" value="fade"> Fade In / Fade Out
+        </label>
+        <label>
+            <input type="radio" name="blink" value="always"> Always On
+        </label>
+        <button id="sendSettings">Send Settings</button>
+    </fieldset>
+
+    <!-- シーケンスラジオボタン -->
+    <fieldset class="sequence-control">
+        <legend>Manual Sequence Control</legend>
         <label>
             <input type="radio" name="manual-sequence" value="sequence-1">
             曲１・シーン１・歌詞「＊＊＊」
@@ -34,7 +70,6 @@
             </select>
         </label>
 
-        <!-- 実行用ラジオボタン② -->
         <label>
             <input type="radio" name="manual-sequence" value="sequence-2">
             曲１・シーン２・歌詞「＊＊＊」
@@ -52,7 +87,6 @@
             </select>
         </label>
 
-        <!-- 実行用ラジオボタン③ -->
         <label>
             <input type="radio" name="manual-sequence" value="sequence-3">
             曲１・シーン３・歌詞「＊＊＊」
@@ -87,6 +121,22 @@
                 // サーバーに設定を送信
                 socket.emit('update-settings', { color, blinkPattern: pattern });
             });
+        });
+
+        // 元々の送信機能
+        document.getElementById('sendSettings').addEventListener('click', () => {
+            const color = document.querySelector('input[name="color"]:checked')?.value;
+            const blinkPattern = document.querySelector('input[name="blink"]:checked')?.value;
+
+            if (!color || !blinkPattern) {
+                alert('Please select both color and blink pattern.');
+                return;
+            }
+
+            console.log(`Sending settings: Color=${color}, Pattern=${blinkPattern}`);
+
+            // サーバーに設定を送信
+            socket.emit('update-settings', { color, blinkPattern });
         });
     </script>
 </body>
