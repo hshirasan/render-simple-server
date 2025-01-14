@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 10 -->
+<!-- Revision: 11 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,20 +52,18 @@
         const socket = io();
 
         let animationInterval = null;
-        let connectionCheckInterval = null;
         let lastSettings = null; // 最後に受信した設定
         let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
         const heartbeatTimeout = 5000; // 接続確認のタイムアウト時間
 
-        // 点滅処理の実行関数
-        const startBlinking = (color, onTime, offTime) => {
-            if (animationInterval) clearInterval(animationInterval); // 既存のタイマーをリセット
-            animationInterval = setInterval(() => {
-                document.body.style.backgroundColor = color;
-                setTimeout(() => {
-                    document.body.style.backgroundColor = 'black';
-                }, onTime);
-            }, onTime + offTime);
+        // 点滅処理の停止と背景色の強制更新
+        const resetAnimation = (color) => {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+            document.body.style.transition = ''; // フェードを無効化
+            document.body.style.backgroundColor = color; // 背景色を設定
         };
 
         // サーバーからの設定を受信
@@ -80,33 +78,38 @@
             const pngImage = document.getElementById('png-image');
 
             // 点滅処理をリセット
-            if (animationInterval) {
-                clearInterval(animationInterval);
-                animationInterval = null;
-            }
+            resetAnimation('black');
 
             // 初期化
-            document.body.style.transition = '';
-            document.body.style.backgroundColor = 'black';
             qrCode.style.display = 'none';
             pngImage.style.display = 'none';
 
             switch (blinkPattern) {
                 case 'always':
-                    // 常時点灯
-                    document.body.style.backgroundColor = color;
+                    console.log('Switching to Always On...');
+                    resetAnimation(color); // 背景色を強制設定
                     qrCode.style.display = 'block';
                     pngImage.style.display = 'block';
                     break;
 
                 case 'blink-250-250':
                     console.log('Starting blink-250-250...');
-                    startBlinking(color, 250, 250);
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor = color;
+                        setTimeout(() => {
+                            document.body.style.backgroundColor = 'black';
+                        }, onTime);
+                    }, onTime + offTime);
                     break;
 
                 case 'blink-500-500':
                     console.log('Starting blink-500-500...');
-                    startBlinking(color, 500, 500);
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor = color;
+                        setTimeout(() => {
+                            document.body.style.backgroundColor = 'black';
+                        }, 500);
+                    }, 1000);
                     break;
 
                 case 'fade':
@@ -120,7 +123,7 @@
 
                 default:
                     console.error('Unknown blink pattern:', blinkPattern);
-                    document.body.style.backgroundColor = 'black'; // 初期状態に戻す
+                    resetAnimation('black');
             }
         });
 
@@ -131,21 +134,15 @@
         });
 
         // 接続状態の確認
-        if (!connectionCheckInterval) {
-            connectionCheckInterval = setInterval(() => {
-                const now = Date.now();
-                if (now - lastServerResponse > heartbeatTimeout) { // サーバー応答がタイムアウト
-                    console.warn('Connection lost. Switching to black.');
-                    document.body.style.backgroundColor = 'black';
-                    if (animationInterval) {
-                        clearInterval(animationInterval); // 点滅処理をリセット
-                        animationInterval = null;
-                    }
-                    document.getElementById('qr-code').style.display = 'none';
-                    document.getElementById('png-image').style.display = 'none';
-                }
-            }, 1000);
-        }
+        setInterval(() => {
+            const now = Date.now();
+            if (now - lastServerResponse > heartbeatTimeout) { // サーバー応答がタイムアウト
+                console.warn('Connection lost. Switching to black.');
+                resetAnimation('black');
+                document.getElementById('qr-code').style.display = 'none';
+                document.getElementById('png-image').style.display = 'none';
+            }
+        }, 1000);
     </script>
 </body>
 </html>
