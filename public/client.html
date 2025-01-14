@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 16 -->
+<!-- Revision: 17 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,18 +52,35 @@
         const socket = io();
 
         let animationInterval = null;
+        let animationTimeout = null; // 修正ポイント
         let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
         const heartbeatTimeout = 5000; // 接続確認のタイムアウト時間
 
-        // 点滅処理の停止と背景色の強制更新
+        // 点滅処理の停止
         const resetAnimation = (color) => {
             console.log('Resetting animation and setting color:', color);
             if (animationInterval) {
                 clearInterval(animationInterval);
                 animationInterval = null;
             }
+            if (animationTimeout) {
+                clearTimeout(animationTimeout);
+                animationTimeout = null;
+            }
             document.body.style.transition = 'none'; // フェードを無効化
             document.body.style.backgroundColor = color; // 背景色を強制設定
+        };
+
+        // 点滅処理の実行
+        const startBlinking = (color, onTime, offTime) => {
+            const blink = () => {
+                document.body.style.backgroundColor = color;
+                animationTimeout = setTimeout(() => {
+                    document.body.style.backgroundColor = 'black';
+                    animationTimeout = setTimeout(blink, offTime);
+                }, onTime);
+            };
+            blink();
         };
 
         // サーバーからの設定を受信
@@ -94,25 +111,13 @@
                 case 'blink-250-250':
                     console.log('Starting blink-250-250...');
                     document.body.style.transition = 'none'; // フェードを無効化
-                    animationInterval = setInterval(() => {
-                        if (document.body.style.backgroundColor === color) {
-                            document.body.style.backgroundColor = 'black';
-                        } else {
-                            document.body.style.backgroundColor = color;
-                        }
-                    }, 250); // 500ms周期
+                    startBlinking(color, onTime, offTime);
                     break;
 
                 case 'blink-500-500':
                     console.log('Starting blink-500-500...');
                     document.body.style.transition = 'none'; // フェードを無効化
-                    animationInterval = setInterval(() => {
-                        if (document.body.style.backgroundColor === color) {
-                            document.body.style.backgroundColor = 'black';
-                        } else {
-                            document.body.style.backgroundColor = color;
-                        }
-                    }, 500); // 1000ms周期
+                    startBlinking(color, 500, 500);
                     break;
 
                 case 'fade':
