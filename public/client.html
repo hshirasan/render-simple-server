@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 11 -->
+<!-- Revision: 12 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,7 +63,9 @@
                 animationInterval = null;
             }
             document.body.style.transition = ''; // フェードを無効化
-            document.body.style.backgroundColor = color; // 背景色を設定
+            setTimeout(() => {
+                document.body.style.backgroundColor = color; // 背景色を強制設定
+            }, 10); // 短い遅延を挿入
         };
 
         // サーバーからの設定を受信
