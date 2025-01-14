@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 17 -->
+<!-- Revision: 18 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,7 +117,7 @@
                 case 'blink-500-500':
                     console.log('Starting blink-500-500...');
                     document.body.style.transition = 'none'; // フェードを無効化
-                    startBlinking(color, 500, 500);
+                    startBlinking(color, onTime, offTime);
                     break;
 
                 case 'fade':
