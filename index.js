@@ -14,11 +14,14 @@ const PORT = process.env.PORT || 3000;
 // 固定パスワード
 const HOST_PASSWORD = '1134';
 
-// 静的ファイルの提供
-app.use(express.static('public'));
-
 // 現在の設定を保持する変数
 let currentSettings = { color: 'black', blinkPattern: 'none', timestamp: Date.now() };
+
+// 心拍信号の送信間隔
+const heartbeatInterval = 3000; // 3秒ごと
+
+// 静的ファイルの提供
+app.use(express.static('public'));
 
 // WebSocket接続の管理
 io.on('connection', (socket) => {
@@ -42,6 +45,7 @@ io.on('connection', (socket) => {
     socket.on('update-settings', (settings) => {
         console.log('Received settings:', settings);
 
+        // 設定のタイムスタンプを更新
         currentSettings = { ...settings, timestamp: Date.now() };
 
         // すべてのクライアントに設定をブロードキャスト
@@ -53,6 +57,13 @@ io.on('connection', (socket) => {
         console.log(`Client disconnected: ${socket.id}`);
     });
 });
+
+// 心拍信号を送信するタイマー
+setInterval(() => {
+    currentSettings.timestamp = Date.now();
+    io.emit('heartbeat', { timestamp: currentSettings.timestamp });
+    console.log('Heartbeat sent:', { timestamp: currentSettings.timestamp });
+}, heartbeatInterval);
 
 // サーバーの起動
 server.listen(PORT, () => {

@@ -1,5 +1,5 @@
 <!-- Filename: client_blink_update.html -->
-<!-- Revision: 9 -->
+<!-- Revision: 10 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,7 +52,9 @@
         const socket = io();
 
         let animationInterval = null;
+        let connectionCheckInterval = null;
         let lastSettings = null; // 最後に受信した設定
+        let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
         const heartbeatTimeout = 5000; // 接続確認のタイムアウト時間
 
         // 点滅処理の実行関数
@@ -70,6 +72,7 @@
         socket.on('update-display', (settings) => {
             console.log('Received settings:', settings);
 
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
             lastSettings = settings; // 最新設定を保存
 
             const { color, blinkPattern, onTime = 250, offTime = 250 } = settings;
@@ -97,19 +100,16 @@
                     break;
 
                 case 'blink-250-250':
-                    // 250ms完全点灯、250ms完全消灯
                     console.log('Starting blink-250-250...');
                     startBlinking(color, 250, 250);
                     break;
 
                 case 'blink-500-500':
-                    // 500ms完全点灯、500ms完全消灯
                     console.log('Starting blink-500-500...');
                     startBlinking(color, 500, 500);
                     break;
 
                 case 'fade':
-                    // 500msフェードイン、500msフェードアウト
                     console.log('Starting fade...');
                     document.body.style.transition = 'background-color 0.5s ease-in-out';
                     animationInterval = setInterval(() => {
@@ -127,22 +127,25 @@
         // 心拍信号を受信して接続状態を維持
         socket.on('heartbeat', (data) => {
             console.log('Heartbeat received:', data);
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
         });
 
         // 接続状態の確認
-        setInterval(() => {
-            const now = Date.now();
-            if (lastSettings && now - lastSettings.timestamp > heartbeatTimeout) { // サーバー応答がタイムアウト
-                console.warn('Connection lost. Switching to black.');
-                document.body.style.backgroundColor = 'black';
-                if (animationInterval) {
-                    clearInterval(animationInterval); // 点滅処理をリセット
-                    animationInterval = null;
+        if (!connectionCheckInterval) {
+            connectionCheckInterval = setInterval(() => {
+                const now = Date.now();
+                if (now - lastServerResponse > heartbeatTimeout) { // サーバー応答がタイムアウト
+                    console.warn('Connection lost. Switching to black.');
+                    document.body.style.backgroundColor = 'black';
+                    if (animationInterval) {
+                        clearInterval(animationInterval); // 点滅処理をリセット
+                        animationInterval = null;
+                    }
+                    document.getElementById('qr-code').style.display = 'none';
+                    document.getElementById('png-image').style.display = 'none';
                 }
-                document.getElementById('qr-code').style.display = 'none';
-                document.getElementById('png-image').style.display = 'none';
-            }
-        }, 1000);
+            }, 1000);
+        }
     </script>
 </body>
 </html>
