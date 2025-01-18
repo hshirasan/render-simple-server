@@ -1,11 +1,11 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.4.6 -->
+<!-- Version: host_v1.4.8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with First "Always On" Set to Black</title>
+    <title>Host Panel with Adjusted Timing Patterns</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -25,8 +25,8 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.4.6</div>
-    <h1>Host Panel with First "Always On" Set to Black</h1>
+    <div class="version-info">Host Version: host_v1.4.8</div>
+    <h1>Host Panel with Adjusted Timing Patterns</h1>
 
     <!-- 曲ごとの設定 -->
     <div>
@@ -41,9 +41,9 @@
             const timingPatterns = (bpm) => [
                 { label: '常時点灯', value: 'always' },
                 { label: '単発点滅', value: 'single-fade-blink' },
+                { label: `1/4拍（BPM=${bpm}）`, value: `bpm${bpm}-quarterbeat` },
                 { label: `1/2拍（BPM=${bpm}）`, value: `bpm${bpm}-halfbeat` },
                 { label: `1拍（BPM=${bpm}）`, value: `bpm${bpm}-1beat` },
-                { label: `2拍（BPM=${bpm}）`, value: `bpm${bpm}-2beat` },
                 { label: 'フェード（500msec）', value: 'fade' },
                 { label: '常時点灯', value: 'always' },
                 { label: '250msec点滅', value: 'blink-250-250' },
@@ -69,7 +69,7 @@
                         <legend>${song.name}（BPM=${song.bpm}）</legend>
                 `);
 
-                for (let i = 1; i <= 9; i++) {
+                for (let i = 1; i <= 9; i++) { 
                     const initialPattern = timingPatterns(song.bpm)[i - 1];
                     const initialColor = i === 1 ? 'rgb(0, 0, 0)' : song.defaultColor; // 一番上の「常時点灯」を黒色に設定
                     document.write(`
@@ -99,8 +99,8 @@
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
                 const pattern = button.dataset.pattern;
-                const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
-                const colorElement = document.getElementById(`color-${song}-${pattern}`);
+                const patternElement = document.getElementById(`pattern-${song.id}-${pattern}`);
+                const colorElement = document.getElementById(`color-${song.id}-${pattern}`);
                 const blinkPattern = patternElement ? patternElement.value : 'always';
                 const color = colorElement ? colorElement.value : 'black';
 
@@ -108,19 +108,19 @@
 
                 // BPMに基づくON/OFF時間計算
                 const bpm = songs.find(s => s.id == song)?.bpm || 120;
+                const quarterBeat = Math.round(60000 / bpm / 4);
                 const halfBeat = Math.round(60000 / bpm / 2);
                 const oneBeat = Math.round(60000 / bpm);
-                const twoBeat = oneBeat * 2;
 
-                if (blinkPattern.includes(`bpm${bpm}-halfbeat`)) {
+                if (blinkPattern.includes(`bpm${bpm}-quarterbeat`)) {
+                    onTime = quarterBeat;
+                    offTime = quarterBeat;
+                } else if (blinkPattern.includes(`bpm${bpm}-halfbeat`)) {
                     onTime = halfBeat;
                     offTime = halfBeat;
                 } else if (blinkPattern.includes(`bpm${bpm}-1beat`)) {
                     onTime = oneBeat;
                     offTime = oneBeat;
-                } else if (blinkPattern.includes(`bpm${bpm}-2beat`)) {
-                    onTime = twoBeat;
-                    offTime = twoBeat;
                 }
 
                 console.log(`Sending settings for Song ${song}: Pattern=${blinkPattern}, Color=${color}, ON=${onTime}ms, OFF=${offTime}ms`);
