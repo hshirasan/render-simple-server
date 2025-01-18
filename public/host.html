@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with Dynamic Dropdown Colors</title>
+    <title>Host Panel</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -21,14 +21,6 @@
             font-size: 14px;
             font-family: Arial, sans-serif;
             z-index: 1000;
-        }
-        select.color-selector {
-            appearance: none;
-            background-color: transparent;
-            border: 1px solid #ccc;
-            padding: 5px;
-            border-radius: 4px;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -101,7 +93,6 @@
     <script>
         const socket = io();
 
-        // 色選択リストの背景色を変更
         document.addEventListener('change', (event) => {
             if (event.target.classList.contains('color-selector')) {
                 event.target.style.backgroundColor = event.target.value;
@@ -112,13 +103,14 @@
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
                 const pattern = button.dataset.pattern;
-                const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
-                const colorElement = document.getElementById(`color-${song}-${pattern}`);
+                const patternElement = document.getElementById(`pattern-${song.id}-${pattern}`);
+                const colorElement = document.getElementById(`color-${song.id}-${pattern}`);
                 const blinkPattern = patternElement ? patternElement.value : 'always';
                 const color = colorElement ? colorElement.value : 'rgb(0, 0, 0)';
 
                 let onTime = 250, offTime = 250;
 
+                // BPM依存のON/OFF時間を計算
                 const bpm = songs.find(s => s.id == song)?.bpm || 120;
                 const quarterBeat = Math.round(60000 / bpm / 4);
                 const halfBeat = Math.round(60000 / bpm / 2);
@@ -135,7 +127,7 @@
                     offTime = oneBeat;
                 }
 
-                console.log(`Debug: Sending settings -> Color: ${color}, Pattern: ${blinkPattern}, ON: ${onTime}ms, OFF: ${offTime}ms`);
+                console.log(`Debug: BPM=${bpm}, Pattern=${blinkPattern}, ON=${onTime}, OFF=${offTime}`);
 
                 socket.emit('update-settings', { color, blinkPattern, onTime, offTime });
             });

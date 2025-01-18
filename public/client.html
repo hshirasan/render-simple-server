@@ -1,5 +1,5 @@
 <!-- Filename: client.html -->
-<!-- Version: client_v1.4.8 -->
+<!-- Version: client_v1.4.9 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +46,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.4.8</div>
+    <div class="version-info">Client Version: client_v1.4.9</div>
 
     <!-- QRコード -->
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
@@ -103,15 +103,15 @@
                 case 'bpm130-quarterbeat':
                 case 'bpm130-halfbeat':
                 case 'bpm130-1beat':
-                case 'bpm85-quarterbeat':
-                case 'bpm85-halfbeat':
-                case 'bpm85-1beat':
-                case 'bpm135-quarterbeat':
-                case 'bpm135-halfbeat':
-                case 'bpm135-1beat':
+                case 'bpm84-quarterbeat':
+                case 'bpm84-halfbeat':
+                case 'bpm84-1beat':
+                case 'bpm132-quarterbeat':
+                case 'bpm132-halfbeat':
+                case 'bpm132-1beat':
                 case 'blink-250-250':
                 case 'blink-500-500':
-                    console.log(`Starting custom blink: ON=${onTime}ms, OFF=${offTime}ms`);
+                    console.log(`Starting custom blink: ON=${onTime}ms, OFF=${offTime}`);
                     document.body.style.transition = 'none'; // フェードを無効化
                     animationInterval = setInterval(() => {
                         const currentColor = document.body.style.backgroundColor === color ? 'black' : color;
