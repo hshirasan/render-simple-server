@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: 1.05 -->
+<!-- Version: 1.06 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +17,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            color: white;
+            color: black; /* 黒文字に変更 */
             font-size: 14px;
             font-family: Arial, sans-serif;
             z-index: 1000;
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Version: 1.05</div>
+    <div class="version-info">Version: 1.06</div>
     <h1>Host Panel with Buttons</h1>
 
     <!-- 曲ごとの設定 -->
@@ -105,7 +105,7 @@
                     const color = document.getElementById(`color-${song}-${pattern}`).value;
                     const blinkPattern = document.getElementById(`pattern-${song.id}-${pattern}`).value;
 
-                    console.log(`Sending for Song ${song}, Pattern ${pattern}: Color=${color}, Pattern=${blinkPattern}`);
+                    console.log(`Sending for Song ${song}, Pattern ${pattern}: Color=${color}, Pattern=${blinkPattern}`); // デバッグログ
 
                     // サーバーに送信
                     socket.emit('update-settings', { color, blinkPattern });
