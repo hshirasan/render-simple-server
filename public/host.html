@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.6.0 -->
+<!-- Version: host_v1.6.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +38,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.6.0</div>
+    <div class="version-info">Host Version: host_v1.6.1</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -62,6 +62,19 @@
                 { label: '500msec点滅', value: 'blink-500-500', onTime: 500, offTime: 500 }
             ];
 
+            const colors = [
+                { value: 'rgb(255, 0, 0)', label: '赤' },
+                { value: 'rgb(255, 255, 0)', label: '黄' },
+                { value: 'rgb(0, 255, 0)', label: '緑' },
+                { value: 'rgb(255, 192, 203)', label: 'ピンク' },
+                { value: 'rgb(185, 185, 255)', label: '紫' },
+                { value: 'rgb(0, 128, 255)', label: '薄青' },
+                { value: 'rgb(0, 255, 255)', label: '水色' },
+                { value: 'rgb(255, 165, 0)', label: '橙' },
+                { value: 'rgb(255, 255, 255)', label: '白' },
+                { value: 'rgb(0, 0, 0)', label: '黒' }
+            ];
+
             songs.forEach(song => {
                 document.write(`
                     <fieldset>
@@ -72,9 +85,7 @@
                                     ${timingPatterns.map(p => `<option value="${p.value}" ${p.value === pattern.value ? 'selected' : ''}>${p.label}</option>`).join('')}
                                 </select>
                                 <select id="color-${song.id}-${index + 1}" class="color-selector">
-                                    <option value="rgb(255, 0, 0)">赤</option>
-                                    <option value="rgb(0, 255, 0)">緑</option>
-                                    <option value="rgb(0, 0, 255)">青</option>
+                                    ${colors.map(c => `<option value="${c.value}">${c.label}</option>`).join('')}
                                 </select>
                                 <button class="sendButton" data-song="${song.id}" data-pattern="${index + 1}">送信ボタン ${index + 1}</button>
                             </div>
@@ -115,6 +126,13 @@
                 console.log(`Sending settings -> Song: ${songId}, Pattern: ${selectedPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
                 socket.emit('update-settings', { color, blinkPattern: selectedPattern, onTime, offTime });
             });
+        });
+
+        // リストボックスの背景色を選択色に変更
+        document.addEventListener('change', (event) => {
+            if (event.target.classList.contains('color-selector')) {
+                event.target.style.backgroundColor = event.target.value;
+            }
         });
     </script>
 </body>
