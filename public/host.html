@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with Adjusted Timing Patterns</title>
+    <title>Host Panel</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -26,16 +26,15 @@
 </head>
 <body>
     <div class="version-info">Host Version: host_v1.4.8</div>
-    <h1>Host Panel with Adjusted Timing Patterns</h1>
+    <h1>Host Panel</h1>
 
-    <!-- 曲ごとの設定 -->
     <div>
         <script>
             const songs = [
-                { id: 1, name: '私なしで', bpm: 130, defaultColor: 'rgb(255, 0, 0)' }, // 赤
-                { id: 2, name: "I'll be", bpm: 85, defaultColor: 'rgb(185, 185, 255)' }, // 紫
-                { id: 3, name: "I'll be", bpm: 85, defaultColor: 'rgb(0, 128, 255)' }, // 薄青
-                { id: 4, name: 'この指', bpm: 135, defaultColor: 'rgb(255, 255, 0)' } // 黄
+                { id: 1, name: '私なしで', bpm: 130, defaultColor: 'rgb(255, 0, 0)' },
+                { id: 2, name: "I'll be", bpm: 85, defaultColor: 'rgb(185, 185, 255)' },
+                { id: 3, name: "I'll be", bpm: 85, defaultColor: 'rgb(0, 128, 255)' },
+                { id: 4, name: 'この指', bpm: 135, defaultColor: 'rgb(255, 255, 0)' }
             ];
 
             const timingPatterns = (bpm) => [
@@ -69,9 +68,9 @@
                         <legend>${song.name}（BPM=${song.bpm}）</legend>
                 `);
 
-                for (let i = 1; i <= 9; i++) { 
+                for (let i = 1; i <= 9; i++) {
                     const initialPattern = timingPatterns(song.bpm)[i - 1];
-                    const initialColor = i === 1 ? 'rgb(0, 0, 0)' : song.defaultColor; // 一番上の「常時点灯」を黒色に設定
+                    const initialColor = i === 1 ? 'rgb(0, 0, 0)' : song.defaultColor;
                     document.write(`
                         <div class="pattern-row">
                             <select id="pattern-${song.id}-${i}">
@@ -94,38 +93,35 @@
     <script>
         const socket = io();
 
-        // ボタンごとの送信処理
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
                 const pattern = button.dataset.pattern;
-                const patternElement = document.getElementById(`pattern-${song.id}-${pattern}`);
-                const colorElement = document.getElementById(`color-${song.id}-${pattern}`);
+                const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
+                const colorElement = document.getElementById(`color-${song}-${pattern}`);
                 const blinkPattern = patternElement ? patternElement.value : 'always';
-                const color = colorElement ? colorElement.value : 'black';
+                const color = colorElement ? colorElement.value : 'rgb(0, 0, 0)';
 
-                let onTime = 250, offTime = 250; // デフォルト値
+                let onTime = 250, offTime = 250;
 
-                // BPMに基づくON/OFF時間計算
                 const bpm = songs.find(s => s.id == song)?.bpm || 120;
                 const quarterBeat = Math.round(60000 / bpm / 4);
                 const halfBeat = Math.round(60000 / bpm / 2);
                 const oneBeat = Math.round(60000 / bpm);
 
-                if (blinkPattern.includes(`bpm${bpm}-quarterbeat`)) {
+                if (blinkPattern.includes('quarterbeat')) {
                     onTime = quarterBeat;
                     offTime = quarterBeat;
-                } else if (blinkPattern.includes(`bpm${bpm}-halfbeat`)) {
+                } else if (blinkPattern.includes('halfbeat')) {
                     onTime = halfBeat;
                     offTime = halfBeat;
-                } else if (blinkPattern.includes(`bpm${bpm}-1beat`)) {
+                } else if (blinkPattern.includes('1beat')) {
                     onTime = oneBeat;
                     offTime = oneBeat;
                 }
 
-                console.log(`Sending settings for Song ${song}: Pattern=${blinkPattern}, Color=${color}, ON=${onTime}ms, OFF=${offTime}ms`);
+                console.log(`Debug: Sending settings -> Color: ${color}, Pattern: ${blinkPattern}, ON: ${onTime}ms, OFF: ${offTime}ms`);
 
-                // サーバーに送信
                 socket.emit('update-settings', { color, blinkPattern, onTime, offTime });
             });
         });
