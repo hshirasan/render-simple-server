@@ -52,7 +52,7 @@
         const heartbeatTimeout = 5000;
 
         // 点滅処理の停止
-        const resetAnimation = (color) => {
+        const resetAnimation = (color, blinkPattern) => {
             console.log('Resetting animation and setting color:', color);
             if (animationInterval) {
                 clearInterval(animationInterval);
@@ -70,7 +70,7 @@
             const qrCode = document.getElementById('qr-code');
             const pngImage = document.getElementById('png-image');
 
-            if (color === 'black') {
+            if (blinkPattern === 'always' && color === 'black') {
                 qrCode.style.display = 'block';
                 pngImage.style.display = 'block';
             } else {
@@ -100,12 +100,12 @@
             const { color, blinkPattern, onTime = 250, offTime = 250 } = settings;
 
             // 点滅処理をリセット
-            resetAnimation('black');
+            resetAnimation('black', blinkPattern);
 
             switch (blinkPattern) {
                 case 'always':
                     console.log('Switching to Always On...');
-                    resetAnimation(color);
+                    resetAnimation(color, blinkPattern);
                     break;
 
                 case 'blink-250-250':
@@ -134,7 +134,7 @@
 
                 default:
                     console.error('Unknown blink pattern:', blinkPattern);
-                    resetAnimation('black');
+                    resetAnimation('black', blinkPattern);
             }
         });
 
@@ -149,7 +149,7 @@
             const now = Date.now();
             if (now - lastServerResponse > heartbeatTimeout) {
                 console.warn('Connection lost. Switching to black.');
-                resetAnimation('black');
+                resetAnimation('black', 'none');
             }
         }, 1000);
     </script>
