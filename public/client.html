@@ -1,5 +1,5 @@
 <!-- Filename: client_display.html -->
-<!-- Version: client_v1.6.8 -->
+<!-- Version: client_v1.6.9 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.6.8</div>
+    <div class="version-info">Client Version: client_v1.6.9</div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
@@ -72,6 +72,9 @@
                     }, onTime);
                     break;
 
+                case 'quarter-beat':
+                case 'half-beat':
+                case 'full-beat':
                 case 'blink-250-250':
                 case 'blink-500-500':
                     document.body.style.transition = 'none';
