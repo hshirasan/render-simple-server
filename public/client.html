@@ -1,5 +1,5 @@
 <!-- Filename: client.html -->
-<!-- Version: client_v1.1.2 -->
+<!-- Version: client_v1.1.3 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +46,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.1.2</div>
+    <div class="version-info">Client Version: client_v1.1.3</div>
 
     <!-- QRコード -->
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
@@ -104,36 +104,22 @@
                     document.body.style.transition = 'none'; // フェードを無効化
                     document.body.style.backgroundColor = color;
 
-                    // 黒常時点灯時にQRコードとPNG画像を表示
-                    if (color === 'black') {
+                    // 背景色が黒のときQRコードとPNG画像を表示
+                    if (color.toLowerCase() === 'black' || color === 'rgb(0, 0, 0)') {
                         qrCode.style.display = 'block';
                         pngImage.style.display = 'block';
+                        console.log('QRコードとPNG画像を表示しました');
                     }
                     break;
 
                 case 'blink-250-250':
-                    console.log('Starting 250ms blink...');
-                    animationInterval = setInterval(() => {
-                        const currentColor = document.body.style.backgroundColor === color ? 'black' : color;
-                        document.body.style.backgroundColor = currentColor;
-                    }, 500); // 250ms ON + 250ms OFF
-                    break;
-
                 case 'blink-500-500':
-                    console.log('Starting 500ms blink...');
+                case 'fade':
+                    console.log(`Executing pattern: ${blinkPattern}`);
                     animationInterval = setInterval(() => {
                         const currentColor = document.body.style.backgroundColor === color ? 'black' : color;
                         document.body.style.backgroundColor = currentColor;
-                    }, 1000); // 500ms ON + 500ms OFF
-                    break;
-
-                case 'fade':
-                    console.log('Starting fade...');
-                    document.body.style.transition = 'background-color 0.5s ease-in-out';
-                    animationInterval = setInterval(() => {
-                        const isBlack = document.body.style.backgroundColor === 'black';
-                        document.body.style.backgroundColor = isBlack ? color : 'black';
-                    }, 1000); // 500msフェードイン + 500msフェードアウト
+                    }, blinkPattern === 'blink-250-250' ? 500 : 1000);
                     break;
 
                 default:
