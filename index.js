@@ -1,5 +1,5 @@
 // Filename: server.js
-// Version: server_v1.4.15
+// Version: server_v1.4.16
 
 const express = require('express');
 const http = require('http');
@@ -19,6 +19,11 @@ const io = socketIo(server, {
 app.use(express.static(path.join(__dirname, 'public')));
 
 let currentSettings = {}; // 最新の制御状態を保持
+
+// 定期的に心拍信号を送信
+setInterval(() => {
+    io.emit('heartbeat', { timestamp: Date.now() });
+}, 2000); // 2秒ごとに送信
 
 io.on('connection', (socket) => {
     console.log(`Client connected: ${socket.id}`);
