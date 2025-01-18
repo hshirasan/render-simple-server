@@ -15,9 +15,33 @@
             background-color: black; /* 初期状態を黒に設定 */
             transition: background-color 0s; /* デフォルトでフェードを無効化 */
         }
+
+        #qr-code {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
+
+        #png-image {
+            position: absolute;
+            top: 50px;
+            left: 160px; /* QRコードの右側 */
+            width: 200px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
     </style>
 </head>
 <body>
+    <!-- QRコード -->
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
+
+    <!-- PNG画像 -->
+    <img id="png-image" src="/teamU.png" alt="Team Image">
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
@@ -38,8 +62,21 @@
                 clearTimeout(animationTimeout);
                 animationTimeout = null;
             }
+
             document.body.style.transition = 'none'; // フェードを無効化
             document.body.style.backgroundColor = color; // 背景色を強制設定
+
+            // QRコードとPNG画像の表示制御
+            const qrCode = document.getElementById('qr-code');
+            const pngImage = document.getElementById('png-image');
+
+            if (color === 'black') {
+                qrCode.style.display = 'block';
+                pngImage.style.display = 'block';
+            } else {
+                qrCode.style.display = 'none';
+                pngImage.style.display = 'none';
+            }
         };
 
         // 点滅処理の実行
@@ -52,16 +89,6 @@
                 }, onTime);
             };
             blink();
-        };
-
-        // 単発点灯処理の実行
-        const singleFadeBlink = (color) => {
-            console.log('Executing single fade blink...');
-            document.body.style.transition = 'background-color 0.1s ease-in-out';
-            document.body.style.backgroundColor = color;
-            setTimeout(() => {
-                document.body.style.backgroundColor = 'black';
-            }, 200); // 合計100msフェードイン + 100msフェードアウト
         };
 
         // サーバーからの設定を受信
@@ -97,7 +124,12 @@
                     break;
 
                 case 'single-fade-blink':
-                    singleFadeBlink(color);
+                    console.log('Executing single fade blink...');
+                    document.body.style.transition = 'background-color 0.1s ease-in-out';
+                    document.body.style.backgroundColor = color;
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = 'black';
+                    }, 200);
                     break;
 
                 default:
