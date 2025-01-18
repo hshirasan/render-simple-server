@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.4.9 -->
+<!-- Version: host_v1.4.10 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.4.9</div>
+    <div class="version-info">Host Version: host_v1.4.10</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -105,8 +105,8 @@
                 const pattern = button.dataset.pattern;
                 const patternElement = document.getElementById(`pattern-${song.id}-${pattern}`);
                 const colorElement = document.getElementById(`color-${song.id}-${pattern}`);
-                const blinkPattern = patternElement ? patternElement.value : 'always';
-                const color = colorElement ? colorElement.value : 'rgb(0, 0, 0)';
+                const blinkPattern = patternElement?.value || 'always';
+                const color = colorElement?.value || 'rgb(0, 0, 0)';
 
                 let onTime = 250, offTime = 250;
 
@@ -127,7 +127,7 @@
                     offTime = oneBeat;
                 }
 
-                console.log(`Debug: BPM=${bpm}, Pattern=${blinkPattern}, ON=${onTime}, OFF=${offTime}`);
+                console.log(`Debug: BPM=${bpm}, Pattern=${blinkPattern}, ON=${onTime}, OFF=${offTime}, Color=${color}`);
 
                 socket.emit('update-settings', { color, blinkPattern, onTime, offTime });
             });
