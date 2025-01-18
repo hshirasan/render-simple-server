@@ -1,5 +1,5 @@
 <!-- Filename: client.html -->
-<!-- Version: client_v1.1.1 -->
+<!-- Version: client_v1.1.2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,10 +25,34 @@
             font-size: 14px;
             font-family: Arial, sans-serif;
         }
+
+        #qr-code {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
+
+        #png-image {
+            position: absolute;
+            top: 50px;
+            left: 160px; /* QRコードの右 */
+            width: 200px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.1.1</div>
+    <div class="version-info">Client Version: client_v1.1.2</div>
+
+    <!-- QRコード -->
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
+
+    <!-- PNG画像 -->
+    <img id="png-image" src="/teamU.png" alt="Team PNG">
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -57,6 +81,14 @@
             document.body.style.transition = '';
             document.body.style.backgroundColor = 'black';
 
+            // QRコードとPNG画像の要素を取得
+            const qrCode = document.getElementById('qr-code');
+            const pngImage = document.getElementById('png-image');
+
+            // デフォルトは非表示
+            qrCode.style.display = 'none';
+            pngImage.style.display = 'none';
+
             switch (blinkPattern) {
                 case 'single-fade-blink':
                     console.log('Executing single fade blink...');
@@ -71,6 +103,12 @@
                     console.log('Switching to Always On...');
                     document.body.style.transition = 'none'; // フェードを無効化
                     document.body.style.backgroundColor = color;
+
+                    // 黒常時点灯時にQRコードとPNG画像を表示
+                    if (color === 'black') {
+                        qrCode.style.display = 'block';
+                        pngImage.style.display = 'block';
+                    }
                     break;
 
                 case 'blink-250-250':
