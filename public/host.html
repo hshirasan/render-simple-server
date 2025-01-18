@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.5.0 -->
+<!-- Version: host_v2.5.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +43,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.5.0</div>
+    <div class="version-info">Host Version: host_v2.5.1</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -123,12 +123,12 @@
             // 最下部にラジオボタンを追加
             document.write(`
                 <fieldset>
-                    <legend>全色常時点灯</legend>
+                    <legend>常時点灯</legend>
                     <div class="color-buttons">
                         ${colors.map((color, index) => `
                             <div class="color-radio">
                                 <input type="radio" name="color-radio" id="color-radio-${index}" value="${color.value}">
-                                <label for="color-radio-${index}" style="color: ${color.value === 'rgb(0, 0, 0)' ? 'white' : 'black'};">${color.label}</label>
+                                <label for="color-radio-${index}" style="color: black;">${color.label}</label>
                             </div>
                         `).join('')}
                     </div>
