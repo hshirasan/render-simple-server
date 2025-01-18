@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.6.3 -->
+<!-- Version: host_v1.6.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,7 +28,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.6.3</div>
+    <div class="version-info">Host Version: host_v1.6.4</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -73,7 +73,7 @@
                             <div class="pattern-row">
                                 <select id="pattern-${song.id}-${index + 1}">
                                     ${timingPatterns.map((p, i) => `
-                                        <option value="${p.value}" ${p.value === 'always' && index === 0 ? 'selected' : ''}>${p.label}</option>
+                                        <option value="${p.value}" ${i === index ? 'selected' : ''}>${p.label}</option>
                                     `).join('')}
                                 </select>
                                 <select id="color-${song.id}-${index + 1}" class="color-selector" style="background-color: ${color};">
