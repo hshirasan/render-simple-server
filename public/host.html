@@ -1,11 +1,11 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.3.2 -->
+<!-- Version: host_v1.3.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with Full Color Options</title>
+    <title>Host Panel with One-Half and Two-Beat Patterns</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -25,17 +25,17 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.3.2</div>
-    <h1>Host Panel with Full Color Options</h1>
+    <div class="version-info">Host Version: host_v1.3.4</div>
+    <h1>Host Panel with One-Half and Two-Beat Patterns</h1>
 
     <!-- 曲ごとの設定 -->
     <div>
         <script>
             const songs = [
-                { id: 1, name: '曲1', defaultColor: 'rgb(255, 0, 0)' }, // 赤
-                { id: 2, name: '曲2-1', defaultColor: 'rgb(185, 185, 255)' }, // 紫
-                { id: 3, name: '曲2-2', defaultColor: 'rgb(0, 128, 255)' }, // 薄青
-                { id: 4, name: '曲3', defaultColor: 'rgb(255, 255, 0)' } // 黄
+                { id: 1, name: '曲1', defaultColor: 'rgb(255, 0, 0)', bpm: 130 }, // 赤
+                { id: 2, name: '曲2-1', defaultColor: 'rgb(185, 185, 255)', bpm: 100 }, // 紫
+                { id: 3, name: '曲2-2', defaultColor: 'rgb(0, 128, 255)', bpm: 150 }, // 薄青
+                { id: 4, name: '曲3', defaultColor: 'rgb(255, 255, 0)', bpm: 120 } // 黄
             ];
 
             const patterns = [
@@ -44,8 +44,9 @@
                 { value: 'blink-250-250', label: '250ms 点滅' },
                 { value: 'blink-500-500', label: '500ms 点滅' },
                 { value: 'single-fade-blink', label: '単発点滅' },
-                { value: 'bpm130-1beat', label: 'BPM 130 - 1拍 (ON=231ms, OFF=231ms)' },
-                { value: 'bpm130-halfbeat', label: 'BPM 130 - 1/2拍 (ON=115ms, OFF=115ms)' }
+                { value: 'bpm-halfbeat', label: '1/2拍 (ON/OFF)' },
+                { value: 'bpm1beat', label: '1拍 (ON/OFF)' },
+                { value: 'bpm2beat', label: '2拍 (ON/OFF)' }
             ];
 
             const colors = [
@@ -64,7 +65,7 @@
             songs.forEach(song => {
                 document.write(`
                     <fieldset>
-                        <legend>${song.name}</legend>
+                        <legend>${song.name} (BPM: ${song.bpm})</legend>
                 `);
 
                 for (let i = 1; i <= 6; i++) {
@@ -102,22 +103,24 @@
 
                 let onTime = 250, offTime = 250; // デフォルト値
 
+                // BPMに基づくON/OFF時間計算
+                const bpm = songs.find(s => s.id == song)?.bpm || 120;
+                const halfBeat = Math.round(60000 / bpm / 2); // 1/2拍 (ms)
+                const oneBeat = Math.round(60000 / bpm); // 1拍 (ms)
+                const twoBeat = oneBeat * 2; // 2拍 (ms)
+
                 switch (blinkPattern) {
-                    case 'blink-250-250':
-                        onTime = 250;
-                        offTime = 250;
+                    case 'bpm-halfbeat':
+                        onTime = halfBeat;
+                        offTime = halfBeat;
                         break;
-                    case 'blink-500-500':
-                        onTime = 500;
-                        offTime = 500;
+                    case 'bpm1beat':
+                        onTime = oneBeat;
+                        offTime = oneBeat;
                         break;
-                    case 'bpm130-1beat':
-                        onTime = 231;
-                        offTime = 231;
-                        break;
-                    case 'bpm130-halfbeat':
-                        onTime = 115;
-                        offTime = 115;
+                    case 'bpm2beat':
+                        onTime = twoBeat;
+                        offTime = twoBeat;
                         break;
                     case 'single-fade-blink':
                         onTime = 200; // 単発点滅のON時間

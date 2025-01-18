@@ -1,5 +1,5 @@
 <!-- Filename: client.html -->
-<!-- Version: client_v1.3.2 -->
+<!-- Version: client_v1.3.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +46,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.3.2</div>
+    <div class="version-info">Client Version: client_v1.3.4</div>
 
     <!-- QRコード -->
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
@@ -100,8 +100,9 @@
                     break;
 
                 case 'custom':
-                case 'bpm130-1beat':
-                case 'bpm130-halfbeat':
+                case 'bpm-halfbeat':
+                case 'bpm1beat':
+                case 'bpm2beat':
                 case 'blink-250-250':
                 case 'blink-500-500':
                     console.log(`Starting custom blink: ON=${onTime}ms, OFF=${offTime}ms`);
