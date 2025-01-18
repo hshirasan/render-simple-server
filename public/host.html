@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.5.6 -->
+<!-- Version: host_v1.5.8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,16 +35,16 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.5.6</div>
+    <div class="version-info">Host Version: host_v1.5.8</div>
     <h1>Host Panel</h1>
 
     <div>
         <script>
             const songs = [
-                { id: 1, name: '私なしで', bpm: 130, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'], },
-                { id: 2, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'], },
-                { id: 3, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'], },
-                { id: 4, name: 'この指', bpm: 132, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'], }
+                { id: 1, name: '私なしで', bpm: 130, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'] },
+                { id: 2, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'] },
+                { id: 3, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'] },
+                { id: 4, name: 'この指', bpm: 132, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'] }
             ];
 
             const timingPatterns = (bpm) => [
