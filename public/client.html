@@ -1,5 +1,5 @@
 <!-- Filename: client.html -->
-<!-- Version: client_v1.1.3 -->
+<!-- Version: client_v1.1.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +14,7 @@
             justify-content: center;
             align-items: center;
             background-color: black; /* 初期状態を黒に設定 */
-            transition: background-color 0s; /* デフォルトでフェードを無効化 */
+            transition: background-color 0.5s ease-in-out; /* フェードを有効化 */
         }
 
         .version-info {
@@ -46,7 +46,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.1.3</div>
+    <div class="version-info">Client Version: client_v1.1.4</div>
 
     <!-- QRコード -->
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
@@ -104,7 +104,7 @@
                     document.body.style.transition = 'none'; // フェードを無効化
                     document.body.style.backgroundColor = color;
 
-                    // 背景色が黒のときQRコードとPNG画像を表示
+                    // 黒常時点灯時にQRコードとPNG画像を表示
                     if (color.toLowerCase() === 'black' || color === 'rgb(0, 0, 0)') {
                         qrCode.style.display = 'block';
                         pngImage.style.display = 'block';
@@ -112,10 +112,19 @@
                     }
                     break;
 
+                case 'fade':
+                    console.log('Starting fade...');
+                    document.body.style.transition = 'background-color 0.5s ease-in-out';
+                    animationInterval = setInterval(() => {
+                        const isBlack = document.body.style.backgroundColor === 'black';
+                        document.body.style.backgroundColor = isBlack ? color : 'black';
+                    }, 1000); // 500msフェードイン + 500msフェードアウト
+                    break;
+
                 case 'blink-250-250':
                 case 'blink-500-500':
-                case 'fade':
-                    console.log(`Executing pattern: ${blinkPattern}`);
+                    console.log(`Starting ${blinkPattern} blink...`);
+                    document.body.style.transition = 'none'; // フェードを無効化
                     animationInterval = setInterval(() => {
                         const currentColor = document.body.style.backgroundColor === color ? 'black' : color;
                         document.body.style.backgroundColor = currentColor;
