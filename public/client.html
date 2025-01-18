@@ -1,5 +1,5 @@
 <!-- Filename: client_display.html -->
-<!-- Version: client_v2.5.1 -->
+<!-- Version: client_v2.5.2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,7 +47,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v2.5.1</div>
+    <div class="version-info">Client Version: client_v2.5.2</div>
 
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
     <img id="png-image" src="/teamU.png" alt="PNG Image">
@@ -57,6 +57,7 @@
         const socket = io();
 
         let animationInterval;
+        let isTransitioning = false; // 切り替え中の状態フラグ
 
         // サーバーからの設定を受信
         socket.on('update-display', (settings) => {
@@ -72,6 +73,11 @@
             qrCode.style.display = 'none';
             pngImage.style.display = 'none';
 
+            if (isTransitioning) {
+                console.log('Transition in progress. Ignoring new commands.');
+                return;
+            }
+
             if (animationInterval) {
                 clearInterval(animationInterval); // 既存の点滅処理を停止
                 animationInterval = null;
@@ -86,13 +92,12 @@
                     break;
 
                 case 'always':
-                    // 常時点灯
-                    if (animationInterval) {
-                        clearInterval(animationInterval); // アニメーションを確実に停止
-                        animationInterval = null;
-                    }
-                    document.body.style.transition = 'none';
-                    document.body.style.backgroundColor = color;
+                    isTransitioning = true; // 切り替え開始
+                    setTimeout(() => {
+                        document.body.style.transition = 'none';
+                        document.body.style.backgroundColor = color;
+                        isTransitioning = false; // 切り替え終了
+                    }, 0); // タイミング競合防止
                     break;
 
                 case 'fade':
