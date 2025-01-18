@@ -1,5 +1,5 @@
-<!-- Filename: client.html -->
-<!-- Version: client_v1.4.16 -->
+<!-- Filename: client_display.html -->
+<!-- Version: client_v1.6.7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,116 +14,38 @@
             justify-content: center;
             align-items: center;
             background-color: black; /* 初期状態を黒に設定 */
-            transition: background-color 0.5s ease-in-out; /* フェードを有効化 */
-        }
-
-        .version-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-size: 14px;
-            font-family: Arial, sans-serif;
-        }
-
-        #qr-code {
-            position: absolute;
-            top: 50px;
-            left: 50px;
-            width: 100px;
-            height: 100px;
-            display: none; /* 初期状態は非表示 */
-        }
-
-        #png-image {
-            position: absolute;
-            top: 50px;
-            left: 160px; /* QRコードの右 */
-            width: 200px;
-            height: 100px;
-            display: none; /* 初期状態は非表示 */
+            transition: background-color 0s; /* デフォルトでフェードを無効化 */
         }
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.4.16</div>
-
-    <!-- QRコード -->
-    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
-
-    <!-- PNG画像 -->
-    <img id="png-image" src="/teamU.png" alt="Team PNG">
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
         let animationInterval;
-        let animationTimeout;
-        let lastHeartbeat = Date.now();
 
         // サーバーからの設定を受信
         socket.on('update-display', (settings) => {
             console.log('Received settings:', settings);
 
-            lastHeartbeat = Date.now(); // サーバー応答時刻を更新
+            const { color, blinkPattern, onTime, offTime } = settings;
 
-            const { color, blinkPattern, onTime = 250, offTime = 250 } = settings;
-
-            // アニメーションをリセット
-            if (animationInterval) {
-                clearInterval(animationInterval);
-                animationInterval = null;
-            }
-            if (animationTimeout) {
-                clearTimeout(animationTimeout);
-                animationTimeout = null;
-            }
-
-            // 背景色をリセット
-            document.body.style.transition = '';
+            // 背景色を初期化
             document.body.style.backgroundColor = 'black';
 
-            // QRコードとPNG画像の要素を取得
-            const qrCode = document.getElementById('qr-code');
-            const pngImage = document.getElementById('png-image');
-
-            // デフォルトは非表示
-            qrCode.style.display = 'none';
-            pngImage.style.display = 'none';
+            // 点滅処理をリセット
+            if (animationInterval) {
+                clearInterval(animationInterval);
+            }
 
             switch (blinkPattern) {
-                case 'single-fade-blink':
-                    console.log('Executing single fade blink...');
-                    document.body.style.transition = 'background-color 0.1s ease-in-out';
-                    document.body.style.backgroundColor = color;
-                    animationTimeout = setTimeout(() => {
-                        document.body.style.backgroundColor = 'black';
-                    }, onTime);
-                    break;
-
-                case 'custom':
-                case 'bpm130-quarterbeat':
-                case 'bpm130-halfbeat':
-                case 'bpm130-1beat':
-                case 'bpm84-quarterbeat':
-                case 'bpm84-halfbeat':
-                case 'bpm84-1beat':
-                case 'bpm132-quarterbeat':
-                case 'bpm132-halfbeat':
-                case 'bpm132-1beat':
-                case 'blink-250-250':
-                case 'blink-500-500':
-                    console.log(`Starting custom blink: ON=${onTime}ms, OFF=${offTime}`);
+                case 'always':
                     document.body.style.transition = 'none';
-                    animationInterval = setInterval(() => {
-                        const currentColor = document.body.style.backgroundColor === color ? 'black' : color;
-                        document.body.style.backgroundColor = currentColor;
-                    }, onTime + offTime);
+                    document.body.style.backgroundColor = color;
                     break;
 
                 case 'fade':
-                    console.log('Starting fade...');
                     document.body.style.transition = 'background-color 0.5s ease-in-out';
                     animationInterval = setInterval(() => {
                         const isBlack = document.body.style.backgroundColor === 'black';
@@ -131,15 +53,18 @@
                     }, 1000);
                     break;
 
-                case 'always':
-                    console.log('Switching to Always On...');
+                case 'quarter-beat':
+                case 'half-beat':
+                case 'full-beat':
+                case 'blink-250-250':
+                case 'blink-500-500':
                     document.body.style.transition = 'none';
-                    document.body.style.backgroundColor = color;
-
-                    if (color.toLowerCase() === 'black' || color === 'rgb(0, 0, 0)') {
-                        qrCode.style.display = 'block';
-                        pngImage.style.display = 'block';
-                    }
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor = color;
+                        setTimeout(() => {
+                            document.body.style.backgroundColor = 'black';
+                        }, onTime);
+                    }, onTime + offTime);
                     break;
 
                 default:
@@ -147,30 +72,9 @@
             }
         });
 
-        // 心拍信号を受信
-        socket.on('heartbeat', () => {
-            console.log('Heartbeat received');
-            lastHeartbeat = Date.now(); // 最終心拍を記録
-        });
-
-        // 接続状態を定期的に確認
-        setInterval(() => {
-            if (Date.now() - lastHeartbeat > 10000) { // 10秒以上心拍がない場合
-                console.warn('Connection lost. Switching to black.');
-                document.body.style.transition = 'none';
-                document.body.style.backgroundColor = 'black'; // 画面を黒にリセット
-                if (animationInterval) clearInterval(animationInterval);
-                if (animationTimeout) clearTimeout(animationTimeout);
-            }
-        }, 1000); // 毎秒確認
-
-        // サーバーとの接続状態を監視
-        socket.on('disconnect', () => {
-            console.warn('Disconnected from server. Switching to black.');
-            document.body.style.transition = 'none';
-            document.body.style.backgroundColor = 'black'; // 画面を黒にリセット
-            if (animationInterval) clearInterval(animationInterval);
-            if (animationTimeout) clearTimeout(animationTimeout);
+        // 接続確認
+        socket.on('heartbeat', (data) => {
+            console.log('Heartbeat received', data);
         });
     </script>
 </body>
