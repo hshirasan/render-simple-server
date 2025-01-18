@@ -1,11 +1,11 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.4.4 -->
+<!-- Version: host_v1.4.5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with All Color Options</title>
+    <title>Host Panel with Correct Initial Values</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -25,8 +25,8 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.4.4</div>
-    <h1>Host Panel with All Color Options</h1>
+    <div class="version-info">Host Version: host_v1.4.5</div>
+    <h1>Host Panel with Correct Initial Values</h1>
 
     <!-- 曲ごとの設定 -->
     <div>
@@ -39,7 +39,7 @@
             ];
 
             const timingPatterns = (bpm) => [
-                { label: '常時点灯・黒', value: 'always-black' },
+                { label: '常時点灯', value: 'always' },
                 { label: '単発点滅', value: 'single-fade-blink' },
                 { label: `1/2拍（BPM=${bpm}）`, value: `bpm${bpm}-halfbeat` },
                 { label: `1拍（BPM=${bpm}）`, value: `bpm${bpm}-1beat` },
@@ -70,13 +70,14 @@
                 `);
 
                 for (let i = 1; i <= 9; i++) {
+                    const initialPattern = timingPatterns(song.bpm)[i - 1];
                     document.write(`
                         <div class="pattern-row">
                             <select id="pattern-${song.id}-${i}">
-                                ${timingPatterns(song.bpm).map(p => `<option value="${p.value}">${p.label}</option>`).join('')}
+                                ${timingPatterns(song.bpm).map(p => `<option value="${p.value}" ${p.value === initialPattern.value ? 'selected' : ''}>${p.label}</option>`).join('')}
                             </select>
                             <select id="color-${song.id}-${i}">
-                                ${colors.map(c => `<option value="${c.value}" ${i === 1 && c.value === song.defaultColor ? 'selected' : ''}>${c.label}</option>`).join('')}
+                                ${colors.map(c => `<option value="${c.value}" ${c.value === song.defaultColor ? 'selected' : ''}>${c.label}</option>`).join('')}
                             </select>
                             <button class="sendButton" data-song="${song.id}" data-pattern="${i}">送信ボタン ${i}</button>
                         </div>
@@ -99,7 +100,7 @@
                 const pattern = button.dataset.pattern;
                 const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
                 const colorElement = document.getElementById(`color-${song}-${pattern}`);
-                const blinkPattern = patternElement ? patternElement.value : 'always-black';
+                const blinkPattern = patternElement ? patternElement.value : 'always';
                 const color = colorElement ? colorElement.value : 'black';
 
                 let onTime = 250, offTime = 250; // デフォルト値
