@@ -1,11 +1,11 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.4.8 -->
+<!-- Version: host_v1.4.9 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel</title>
+    <title>Host Panel with Dynamic Dropdown Colors</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -22,19 +22,27 @@
             font-family: Arial, sans-serif;
             z-index: 1000;
         }
+        select.color-selector {
+            appearance: none;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            padding: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.4.8</div>
+    <div class="version-info">Host Version: host_v1.4.9</div>
     <h1>Host Panel</h1>
 
     <div>
         <script>
             const songs = [
                 { id: 1, name: '私なしで', bpm: 130, defaultColor: 'rgb(255, 0, 0)' },
-                { id: 2, name: "I'll be", bpm: 85, defaultColor: 'rgb(185, 185, 255)' },
-                { id: 3, name: "I'll be", bpm: 85, defaultColor: 'rgb(0, 128, 255)' },
-                { id: 4, name: 'この指', bpm: 135, defaultColor: 'rgb(255, 255, 0)' }
+                { id: 2, name: "I'll be", bpm: 84, defaultColor: 'rgb(185, 185, 255)' },
+                { id: 3, name: "I'll be", bpm: 84, defaultColor: 'rgb(0, 128, 255)' },
+                { id: 4, name: 'この指', bpm: 132, defaultColor: 'rgb(255, 255, 0)' }
             ];
 
             const timingPatterns = (bpm) => [
@@ -76,7 +84,7 @@
                             <select id="pattern-${song.id}-${i}">
                                 ${timingPatterns(song.bpm).map(p => `<option value="${p.value}" ${p.value === initialPattern.value ? 'selected' : ''}>${p.label}</option>`).join('')}
                             </select>
-                            <select id="color-${song.id}-${i}">
+                            <select id="color-${song.id}-${i}" class="color-selector" style="background-color: ${initialColor};">
                                 ${colors.map(c => `<option value="${c.value}" ${c.value === initialColor ? 'selected' : ''}>${c.label}</option>`).join('')}
                             </select>
                             <button class="sendButton" data-song="${song.id}" data-pattern="${i}">送信ボタン ${i}</button>
@@ -92,6 +100,13 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+
+        // 色選択リストの背景色を変更
+        document.addEventListener('change', (event) => {
+            if (event.target.classList.contains('color-selector')) {
+                event.target.style.backgroundColor = event.target.value;
+            }
+        });
 
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
