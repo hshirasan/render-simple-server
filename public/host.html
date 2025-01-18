@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.3.0 -->
+<!-- Version: host_v2.4.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +39,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.3.0</div>
+    <div class="version-info">Host Version: host_v2.4.0</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -137,7 +137,6 @@
     <script>
         const socket = io();
 
-        // ラジオボタンの処理
         document.querySelectorAll('input[name="color-radio"]').forEach(radio => {
             radio.addEventListener('change', (event) => {
                 const selectedColor = event.target.value;
@@ -147,7 +146,6 @@
             });
         });
 
-        // 曲ごとの送信ボタンの処理
         document.querySelectorAll('.sendButton').forEach(button => {
             button.addEventListener('click', () => {
                 const songId = button.dataset.song;
@@ -158,12 +156,25 @@
                 const blinkPattern = (colorElement.value === 'rgb(0, 0, 0)' && patternElement.value === 'always') ? 'qr-and-png' : patternElement.value;
                 const color = colorElement.value;
 
-                console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}`);
-                socket.emit('update-settings', { blinkPattern, color });
+                let onTime = 0, offTime = 0;
+
+                const selectedPattern = timingPatterns.find(p => p.value === blinkPattern);
+
+                if (selectedPattern?.factor) {
+                    const bpm = songs.find(s => s.id == songId)?.bpm || 120;
+                    const beatTime = Math.round((60 / bpm) * 1000);
+                    onTime = beatTime / selectedPattern.factor;
+                    offTime = beatTime / selectedPattern.factor;
+                } else {
+                    onTime = selectedPattern?.onTime || 0;
+                    offTime = selectedPattern?.offTime || 0;
+                }
+
+                console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
+                socket.emit('update-settings', { blinkPattern, color, onTime, offTime });
             });
         });
 
-        // リストボックスの背景色を選択色に変更
         document.addEventListener('change', (event) => {
             if (event.target.classList.contains('color-selector')) {
                 event.target.style.backgroundColor = event.target.value;
