@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: 1.03 -->
+<!-- Version: 1.04 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +24,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Version: 1.03</div>
+    <div class="version-info">Version: 1.04</div>
     <h1>Host Panel with Buttons</h1>
 
     <!-- 曲ごとの設定 -->
@@ -52,8 +52,14 @@
                         <legend>${song.name}</legend>
                 `);
                 for (let pattern = 1; pattern <= 6; pattern++) {
-                    const defaultColor = song.defaultColor;
-                    const defaultPattern = defaultPatterns[pattern - 1];
+                    let defaultColor = song.defaultColor;
+                    let defaultPattern = defaultPatterns[pattern - 1];
+
+                    // 最初のリスト項目を黒の常時点灯に設定
+                    if (pattern === 1) {
+                        defaultColor = "rgb(0, 0, 0)"; // 黒
+                        defaultPattern = "always";    // 常時点灯
+                    }
 
                     document.write(`
                         <div class="pattern-row">
@@ -68,7 +74,7 @@
                                 <option value="rgb(0, 128, 255)" ${defaultColor === "rgb(0, 128, 255)" ? "selected" : ""}>薄青</option>
                                 <option value="rgb(255, 165, 0)">オレンジ</option>
                                 <option value="rgb(255, 255, 255)">白</option>
-                                <option value="rgb(0, 0, 0)">黒</option>
+                                <option value="rgb(0, 0, 0)" ${defaultColor === "rgb(0, 0, 0)" ? "selected" : ""}>黒</option>
                             </select>
                             <select id="pattern-${song.id}-${pattern}">
                                 <option value="always" ${defaultPattern === "always" ? "selected" : ""}>常時点灯</option>
@@ -94,8 +100,8 @@
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
                 const pattern = button.dataset.pattern;
-                const color = document.getElementById(`color-${song}-${pattern}`).value;
-                const blinkPattern = document.getElementById(`pattern-${song}-${pattern}`).value;
+                const color = document.getElementById(`color-${song.id}-${pattern}`).value;
+                const blinkPattern = document.getElementById(`pattern-${song.id}-${pattern}`).value;
 
                 console.log(`Sending for Song ${song}, Pattern ${pattern}: Color=${color}, Pattern=${blinkPattern}`);
 
