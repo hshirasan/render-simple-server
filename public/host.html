@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: 1.04 -->
+<!-- Version: 1.05 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,11 +20,12 @@
             color: white;
             font-size: 14px;
             font-family: Arial, sans-serif;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div class="version-info">Version: 1.04</div>
+    <div class="version-info">Version: 1.05</div>
     <h1>Host Panel with Buttons</h1>
 
     <!-- 曲ごとの設定 -->
@@ -98,15 +99,19 @@
         // ボタンごとの送信処理
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
-                const song = button.dataset.song;
-                const pattern = button.dataset.pattern;
-                const color = document.getElementById(`color-${song.id}-${pattern}`).value;
-                const blinkPattern = document.getElementById(`pattern-${song.id}-${pattern}`).value;
+                try {
+                    const song = button.dataset.song;
+                    const pattern = button.dataset.pattern;
+                    const color = document.getElementById(`color-${song}-${pattern}`).value;
+                    const blinkPattern = document.getElementById(`pattern-${song.id}-${pattern}`).value;
 
-                console.log(`Sending for Song ${song}, Pattern ${pattern}: Color=${color}, Pattern=${blinkPattern}`);
+                    console.log(`Sending for Song ${song}, Pattern ${pattern}: Color=${color}, Pattern=${blinkPattern}`);
 
-                // サーバーに送信
-                socket.emit('update-settings', { color, blinkPattern });
+                    // サーバーに送信
+                    socket.emit('update-settings', { color, blinkPattern });
+                } catch (error) {
+                    console.error('Error sending settings:', error);
+                }
             });
         });
     </script>
