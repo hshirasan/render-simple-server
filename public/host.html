@@ -1,88 +1,135 @@
-<!-- Filename: client.html -->
-<!-- Version: 1.09 -->
+<!-- Filename: host_panel.html -->
+<!-- Version: 1.08 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Display</title>
+    <title>Host Panel with Buttons</title>
     <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: black; /* 初期状態を黒に設定 */
-            transition: background-color 0s; /* デフォルトでフェードを無効化 */
+        fieldset {
+            margin-bottom: 20px;
         }
-
+        .pattern-row {
+            margin-bottom: 10px;
+        }
         .version-info {
             position: absolute;
             top: 10px;
             left: 10px;
-            color: white;
+            color: black;
             font-size: 14px;
             font-family: Arial, sans-serif;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div class="version-info">Version: 1.09</div>
+    <div class="version-info">Version: 1.08</div>
+    <h1>Host Panel with Buttons</h1>
+
+    <!-- 曲ごとの設定 -->
+    <div>
+        <script>
+            const songs = [
+                { id: 1, name: '曲1', defaultColor: 'rgb(255, 0, 0)' }, // 赤
+                { id: 2, name: '曲2-1', defaultColor: 'rgb(185, 185, 255)' }, // 紫
+                { id: 3, name: '曲2-2', defaultColor: 'rgb(0, 128, 255)' }, // 薄青
+                { id: 4, name: '曲3', defaultColor: 'rgb(255, 255, 0)' } // 黄
+            ];
+
+            const defaultPatterns = [
+                "always",             // 常時点灯
+                "single-fade-blink",  // 単発
+                "blink-250-250",      // 250msec点滅
+                "blink-500-500",      // 500msec点滅
+                "fade",               // 500msecフェード
+                "always"              // 常時点灯
+            ];
+
+            // HTMLを生成
+            songs.forEach(song => {
+                console.log(`Generating HTML for ${song.name}...`); // デバッグログ
+                document.write(`
+                    <fieldset>
+                        <legend>${song.name}</legend>
+                `);
+                for (let pattern = 1; pattern <= 6; pattern++) {
+                    const defaultColor = pattern === 1 ? "rgb(0, 0, 0)" : song.defaultColor;
+                    const defaultPattern = defaultPatterns[pattern - 1];
+
+                    const colorId = `color-${song.id}-${pattern}`;
+                    const patternId = `pattern-${song.id}-${pattern}`;
+
+                    console.log(`Creating elements: ${colorId}, ${patternId}`); // デバッグログ
+
+                    document.write(`
+                        <div class="pattern-row">
+                            <button class="sendButton" data-song="${song.id}" data-pattern="${pattern}">送信ボタン ${pattern}</button>
+                            <select id="${colorId}">
+                                <option value="rgb(255, 0, 0)" ${defaultColor === "rgb(255, 0, 0)" ? "selected" : ""}>赤</option>
+                                <option value="rgb(255, 255, 0)" ${defaultColor === "rgb(255, 255, 0)" ? "selected" : ""}>黄</option>
+                                <option value="rgb(0, 255, 0)">緑</option>
+                                <option value="rgb(255, 192, 203)">ピンク</option>
+                                <option value="rgb(185, 185, 255)" ${defaultColor === "rgb(185, 185, 255)" ? "selected" : ""}>紫</option>
+                                <option value="rgb(0, 255, 255)">水色</option>
+                                <option value="rgb(0, 128, 255)" ${defaultColor === "rgb(0, 128, 255)" ? "selected" : ""}>薄青</option>
+                                <option value="rgb(255, 165, 0)">オレンジ</option>
+                                <option value="rgb(255, 255, 255)">白</option>
+                                <option value="rgb(0, 0, 0)" ${defaultColor === "rgb(0, 0, 0)" ? "selected" : ""}>黒</option>
+                            </select>
+                            <select id="${patternId}">
+                                <option value="always" ${defaultPattern === "always" ? "selected" : ""}>常時点灯</option>
+                                <option value="single-fade-blink" ${defaultPattern === "single-fade-blink" ? "selected" : ""}>単発</option>
+                                <option value="blink-250-250" ${defaultPattern === "blink-250-250" ? "selected" : ""}>250msec点滅</option>
+                                <option value="blink-500-500" ${defaultPattern === "blink-500-500" ? "selected" : ""}>500msec点滅</option>
+                                <option value="fade" ${defaultPattern === "fade" ? "selected" : ""}>500msecフェード</option>
+                            </select>
+                        </div>
+                    `);
+                }
+                document.write('</fieldset>');
+            });
+        </script>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
-        let animationTimeout;
-
-        socket.on('update-display', (settings) => {
-            console.log('Received settings:', settings);
-
-            const { color, blinkPattern } = settings;
-
-            // 現在のアニメーションをリセット
-            if (animationTimeout) {
-                clearTimeout(animationTimeout);
-                animationTimeout = null;
-            }
-
-            // 背景色を初期化
-            document.body.style.transition = '';
-            document.body.style.backgroundColor = 'black';
-
-            switch (blinkPattern) {
-                case 'single-fade-blink':
-                    console.log('Executing single fade blink...');
-                    document.body.style.transition = 'background-color 0.1s ease-in-out'; // フェードを有効化
-                    document.body.style.backgroundColor = color;
-                    animationTimeout = setTimeout(() => {
-                        document.body.style.backgroundColor = 'black'; // 元の色に戻す
-                    }, 200); // 単発表示後に黒に戻す
-                    break;
-
-                case 'always':
-                    console.log('Switching to Always On...');
-                    document.body.style.transition = 'none'; // フェードを無効化
-                    document.body.style.backgroundColor = color;
-                    break;
-
-                case 'fade':
-                    console.log('Starting fade...');
-                    document.body.style.transition = 'background-color 0.5s ease-in-out'; // フェードを有効化
-                    setInterval(() => {
-                        document.body.style.backgroundColor =
-                            document.body.style.backgroundColor === 'black' ? color : 'black';
-                    }, 1000); // 1秒周期
-                    break;
-
-                default:
-                    console.warn(`Unknown blink pattern: ${blinkPattern}`);
-            }
+        socket.on('connect', () => {
+            console.log('Socket connected successfully.');
         });
 
-        socket.on('heartbeat', () => {
-            console.log('Heartbeat received');
+        socket.on('disconnect', () => {
+            console.warn('Socket disconnected.');
+        });
+
+        // ボタンごとの送信処理
+        document.querySelectorAll('.sendButton').forEach((button) => {
+            button.addEventListener('click', () => {
+                try {
+                    const song = button.dataset.song;
+                    const pattern = button.dataset.pattern;
+                    const colorElement = document.getElementById(`color-${song}-${pattern}`);
+                    const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
+
+                    if (!colorElement || !patternElement) {
+                        console.error(`Error: Element not found for song ${song}, pattern ${pattern}`);
+                        return;
+                    }
+
+                    const color = colorElement.value;
+                    const blinkPattern = patternElement.value;
+
+                    console.log(`Sending for Song ${song}, Pattern ${pattern}: Color=${color}, Pattern=${blinkPattern}`); // デバッグログ
+
+                    // サーバーに送信
+                    socket.emit('update-settings', { color, blinkPattern });
+                } catch (error) {
+                    console.error('Error sending settings:', error);
+                }
+            });
         });
     </script>
 </body>
