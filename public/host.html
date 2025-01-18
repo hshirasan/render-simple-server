@@ -55,6 +55,60 @@
                                 defaultPattern = "always";
                                 break;
                         }
+                    } else if (song === 2) {
+                        switch (pattern) {
+                            case 1:
+                                defaultColor = "black";
+                                defaultPattern = "always";
+                                break;
+                            case 2:
+                                defaultColor = "purple";
+                                defaultPattern = "single-fade-blink";
+                                break;
+                            case 3:
+                                defaultColor = "purple";
+                                defaultPattern = "blink-250-250";
+                                break;
+                            case 4:
+                                defaultColor = "purple";
+                                defaultPattern = "blink-500-500";
+                                break;
+                            case 5:
+                                defaultColor = "purple";
+                                defaultPattern = "fade";
+                                break;
+                            case 6:
+                                defaultColor = "purple";
+                                defaultPattern = "always";
+                                break;
+                        }
+                    } else if (song === 3) {
+                        switch (pattern) {
+                            case 1:
+                                defaultColor = "black";
+                                defaultPattern = "always";
+                                break;
+                            case 2:
+                                defaultColor = "orange";
+                                defaultPattern = "single-fade-blink";
+                                break;
+                            case 3:
+                                defaultColor = "orange";
+                                defaultPattern = "blink-250-250";
+                                break;
+                            case 4:
+                                defaultColor = "orange";
+                                defaultPattern = "blink-500-500";
+                                break;
+                            case 5:
+                                defaultColor = "orange";
+                                defaultPattern = "fade";
+                                break;
+                            case 6:
+                                defaultColor = "orange";
+                                defaultPattern = "always";
+                                break;
+                        }
                     }
 
                     document.write(`
@@ -69,6 +123,7 @@
                                 <option value="cyan" ${defaultColor === "cyan" ? "selected" : ""}>Cyan</option>
                                 <option value="white" ${defaultColor === "white" ? "selected" : ""}>White</option>
                                 <option value="black" ${defaultColor === "black" ? "selected" : ""}>Black</option>
+                                <option value="orange" ${defaultColor === "orange" ? "selected" : ""}>Orange</option>
                             </select>
                             <select id="pattern-${song}-${pattern}">
                                 <option value="blink-250-250" ${defaultPattern === "blink-250-250" ? "selected" : ""}>250ms On / 250ms Off</option>
