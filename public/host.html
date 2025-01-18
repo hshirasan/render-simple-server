@@ -1,11 +1,11 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.4.0 -->
+<!-- Version: host_v1.4.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with Updated Song Names</title>
+    <title>Host Panel with 9 Options per Song</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -25,8 +25,8 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.4.0</div>
-    <h1>Host Panel with Updated Song Names</h1>
+    <div class="version-info">Host Version: host_v1.4.1</div>
+    <h1>Host Panel with 9 Options per Song</h1>
 
     <!-- 曲ごとの設定 -->
     <div>
@@ -46,11 +46,37 @@
                 { value: 'single-fade-blink', label: '単発点滅' }
             ];
 
+            const bpmSpecificPatterns = (bpm, name) => [
+                { value: `bpm${bpm}-halfbeat`, label: `${name}・1/2拍` },
+                { value: `bpm${bpm}-1beat`, label: `${name}・1拍` },
+                { value: `bpm${bpm}-2beat`, label: `${name}・2拍` }
+            ];
+
+            const colors = [
+                { value: 'rgb(255, 0, 0)', label: '赤' },
+                { value: 'rgb(255, 255, 0)', label: '黄' },
+                { value: 'rgb(0, 255, 0)', label: '緑' },
+                { value: 'rgb(255, 192, 203)', label: 'ピンク' },
+                { value: 'rgb(185, 185, 255)', label: '紫' },
+                { value: 'rgb(0, 128, 255)', label: '薄青' },
+                { value: 'rgb(0, 255, 255)', label: '水色' },
+                { value: 'rgb(255, 165, 0)', label: '橙' },
+                { value: 'rgb(255, 255, 255)', label: '白' },
+                { value: 'rgb(0, 0, 0)', label: '黒' }
+            ];
+
             songs.forEach(song => {
-                const bpmSpecificPatterns = [
-                    { value: `bpm${song.bpm}-halfbeat`, label: `${song.name}（BPM=${song.bpm}）・1/2拍` },
-                    { value: `bpm${song.bpm}-1beat`, label: `${song.name}（BPM=${song.bpm}）・1拍` },
-                    { value: `bpm${song.bpm}-2beat`, label: `${song.name}（BPM=${song.bpm}）・2拍` }
+                const songPatterns = [
+                    { value: 'always', label: '常時点灯・黒' },
+                    ...colors.map(c => ({ value: `single-fade-blink-${c.value}`, label: `単発点滅・${c.label}` })),
+                    ...bpmSpecificPatterns(song.bpm, song.name).flatMap(p => colors.map(c => ({
+                        value: `${p.value}-${c.value}`,
+                        label: `${p.label}・${c.label}`
+                    }))),
+                    ...patterns.flatMap(p => colors.map(c => ({
+                        value: `${p.value}-${c.value}`,
+                        label: `${p.label}・${c.label}`
+                    })))
                 ];
 
                 document.write(`
@@ -58,23 +84,14 @@
                         <legend>${song.name}（BPM=${song.bpm}）</legend>
                 `);
 
-                for (let i = 1; i <= 6; i++) {
+                for (let i = 1; i <= 9; i++) {
                     document.write(`
                         <div class="pattern-row">
                             <select id="pattern-${song.id}-${i}">
-                                ${[...patterns, ...bpmSpecificPatterns].map(p => `<option value="${p.value}">${p.label}</option>`).join('')}
+                                ${songPatterns.map(p => `<option value="${p.value}">${p.label}</option>`).join('')}
                             </select>
                             <select id="color-${song.id}-${i}">
-                                <option value="rgb(255, 0, 0)" ${song.defaultColor === 'rgb(255, 0, 0)' ? 'selected' : ''}>赤</option>
-                                <option value="rgb(255, 255, 0)" ${song.defaultColor === 'rgb(255, 255, 0)' ? 'selected' : ''}>黄</option>
-                                <option value="rgb(0, 255, 0)">緑</option>
-                                <option value="rgb(255, 192, 203)">ピンク</option>
-                                <option value="rgb(185, 185, 255)" ${song.defaultColor === 'rgb(185, 185, 255)' ? 'selected' : ''}>紫</option>
-                                <option value="rgb(0, 128, 255)" ${song.defaultColor === 'rgb(0, 128, 255)' ? 'selected' : ''}>薄青</option>
-                                <option value="rgb(0, 255, 255)">水色</option>
-                                <option value="rgb(255, 165, 0)">橙</option>
-                                <option value="rgb(255, 255, 255)">白</option>
-                                <option value="rgb(0, 0, 0)">黒</option>
+                                ${colors.map(c => `<option value="${c.value}" ${c.value === song.defaultColor ? 'selected' : ''}>${c.label}</option>`).join('')}
                             </select>
                             <button class="sendButton" data-song="${song.id}" data-pattern="${i}">送信ボタン ${i}</button>
                         </div>
@@ -108,13 +125,13 @@
                 const oneBeat = Math.round(60000 / bpm);
                 const twoBeat = oneBeat * 2;
 
-                if (blinkPattern === `bpm${bpm}-halfbeat`) {
+                if (blinkPattern.startsWith(`bpm${bpm}-halfbeat`)) {
                     onTime = halfBeat;
                     offTime = halfBeat;
-                } else if (blinkPattern === `bpm${bpm}-1beat`) {
+                } else if (blinkPattern.startsWith(`bpm${bpm}-1beat`)) {
                     onTime = oneBeat;
                     offTime = oneBeat;
-                } else if (blinkPattern === `bpm${bpm}-2beat`) {
+                } else if (blinkPattern.startsWith(`bpm${bpm}-2beat`)) {
                     onTime = twoBeat;
                     offTime = twoBeat;
                 }
