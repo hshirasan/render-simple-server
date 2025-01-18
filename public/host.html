@@ -1,11 +1,11 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.2.3 -->
+<!-- Version: host_v1.3.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with BPM-Based Patterns</title>
+    <title>Host Panel with Multiple Songs</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -25,32 +25,55 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.2.3</div>
-    <h1>Host Panel with BPM-Based Patterns</h1>
+    <div class="version-info">Host Version: host_v1.3.0</div>
+    <h1>Host Panel with Multiple Songs</h1>
 
     <!-- 曲ごとの設定 -->
     <div>
-        <fieldset>
-            <legend>曲1 (BPM: 130)</legend>
-            <div class="pattern-row">
-                <select id="pattern-1">
-                    <option value="always">常時点灯</option>
-                    <option value="fade">フェード (500ms)</option>
-                    <option value="blink-250-250">250ms 点滅</option>
-                    <option value="blink-500-500">500ms 点滅</option>
-                    <option value="single-fade-blink">単発点滅</option>
-                    <option value="bpm130-1beat">BPM 130 - 1拍 (ON=231ms, OFF=231ms)</option>
-                    <option value="bpm130-halfbeat">BPM 130 - 1/2拍 (ON=115ms, OFF=115ms)</option>
-                </select>
-                <button class="sendButton" data-song="1">送信</button>
-            </div>
-            <select id="color-1">
-                <option value="rgb(255, 0, 0)">赤</option>
-                <option value="rgb(185, 185, 255)">紫</option>
-                <option value="rgb(0, 128, 255)">薄青</option>
-                <option value="rgb(255, 255, 0)">黄</option>
-            </select>
-        </fieldset>
+        <script>
+            const songs = [
+                { id: 1, name: '曲1', defaultColor: 'rgb(255, 0, 0)' }, // 赤
+                { id: 2, name: '曲2-1', defaultColor: 'rgb(185, 185, 255)' }, // 紫
+                { id: 3, name: '曲2-2', defaultColor: 'rgb(0, 128, 255)' }, // 薄青
+                { id: 4, name: '曲3', defaultColor: 'rgb(255, 255, 0)' } // 黄
+            ];
+
+            const patterns = [
+                { value: 'always', label: '常時点灯' },
+                { value: 'fade', label: 'フェード (500ms)' },
+                { value: 'blink-250-250', label: '250ms 点滅' },
+                { value: 'blink-500-500', label: '500ms 点滅' },
+                { value: 'single-fade-blink', label: '単発点滅' },
+                { value: 'bpm130-1beat', label: 'BPM 130 - 1拍 (ON=231ms, OFF=231ms)' },
+                { value: 'bpm130-halfbeat', label: 'BPM 130 - 1/2拍 (ON=115ms, OFF=115ms)' }
+            ];
+
+            songs.forEach(song => {
+                document.write(`
+                    <fieldset>
+                        <legend>${song.name}</legend>
+                `);
+
+                for (let i = 1; i <= 6; i++) {
+                    document.write(`
+                        <div class="pattern-row">
+                            <select id="pattern-${song.id}-${i}">
+                                ${patterns.map(p => `<option value="${p.value}">${p.label}</option>`).join('')}
+                            </select>
+                            <select id="color-${song.id}-${i}">
+                                <option value="rgb(255, 0, 0)" ${song.defaultColor === "rgb(255, 0, 0)" ? "selected" : ""}>赤</option>
+                                <option value="rgb(185, 185, 255)" ${song.defaultColor === "rgb(185, 185, 255)" ? "selected" : ""}>紫</option>
+                                <option value="rgb(0, 128, 255)" ${song.defaultColor === "rgb(0, 128, 255)" ? "selected" : ""}>薄青</option>
+                                <option value="rgb(255, 255, 0)" ${song.defaultColor === "rgb(255, 255, 0)" ? "selected" : ""}>黄</option>
+                            </select>
+                            <button class="sendButton" data-song="${song.id}" data-pattern="${i}">送信ボタン ${i}</button>
+                        </div>
+                    `);
+                }
+
+                document.write('</fieldset>');
+            });
+        </script>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -61,8 +84,9 @@
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
-                const patternElement = document.getElementById(`pattern-${song}`);
-                const colorElement = document.getElementById(`color-${song}`);
+                const pattern = button.dataset.pattern;
+                const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
+                const colorElement = document.getElementById(`color-${song}-${pattern}`);
                 const blinkPattern = patternElement ? patternElement.value : 'always';
                 const color = colorElement ? colorElement.value : 'black';
 
