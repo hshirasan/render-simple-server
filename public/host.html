@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.7.2 -->
+<!-- Version: host_v1.7.3 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,11 +39,29 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.7.2</div>
+    <div class="version-info">Host Version: host_v1.7.3</div>
     <h1>Host Panel</h1>
 
     <div>
         <script>
+            const songs = [
+                { id: 1, name: '私なしで', bpm: 130, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'] },
+                { id: 2, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'] },
+                { id: 3, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'] },
+                { id: 4, name: 'この指', bpm: 132, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'] }
+            ];
+
+            const timingPatterns = [
+                { label: '常時点灯', value: 'always', onTime: 0, offTime: 0 },
+                { label: '単発点滅', value: 'single-fade-blink', onTime: 100, offTime: 0 },
+                { label: `1/4拍（BPM=`, value: 'quarter-beat', factor: 4 },
+                { label: `1/2拍（BPM=`, value: 'half-beat', factor: 2 },
+                { label: `1拍（BPM=`, value: 'full-beat', factor: 1 },
+                { label: 'フェード（500msec）', value: 'fade', onTime: 500, offTime: 500 },
+                { label: '250msec点滅', value: 'blink-250-250', onTime: 250, offTime: 250 },
+                { label: '500msec点滅', value: 'blink-500-500', onTime: 500, offTime: 500 }
+            ];
+
             const colors = [
                 { value: 'rgb(255, 0, 0)', label: '赤' },
                 { value: 'rgb(255, 255, 0)', label: '黄' },
@@ -56,6 +74,32 @@
                 { value: 'rgb(255, 255, 255)', label: '白' },
                 { value: 'rgb(0, 0, 0)', label: '黒' }
             ];
+
+            // 曲ごとのUIを生成
+            songs.forEach(song => {
+                document.write(`
+                    <fieldset>
+                        <legend>${song.name}（BPM=${song.bpm}）</legend>
+                        ${song.initialColors.map((color, index) => `
+                            <div class="pattern-row">
+                                <select id="pattern-${song.id}-${index + 1}">
+                                    ${timingPatterns.map((p, i) => `
+                                        <option value="${p.value}" ${i === index ? 'selected' : ''}>
+                                            ${p.label.includes('BPM=') ? p.label + song.bpm + '）' : p.label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                                <select id="color-${song.id}-${index + 1}" class="color-selector" style="background-color: ${color};">
+                                    ${colors.map(c => `
+                                        <option value="${c.value}" ${c.value === color ? 'selected' : ''}>${c.label}</option>
+                                    `).join('')}
+                                </select>
+                                <button class="sendButton" data-song="${song.id}" data-pattern="${index + 1}">送信ボタン ${index + 1}</button>
+                            </div>
+                        `).join('')}
+                    </fieldset>
+                `);
+            });
 
             // 最下部にラジオボタンを追加
             document.write(`
