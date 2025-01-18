@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.5.8 -->
+<!-- Version: host_v1.5.9 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,6 +23,9 @@
             align-items: center;
             gap: 5px;
         }
+        .color-selector {
+            background-color: initial;
+        }
         .version-info {
             position: absolute;
             top: 10px;
@@ -35,7 +38,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.5.8</div>
+    <div class="version-info">Host Version: host_v1.5.9</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -81,7 +84,7 @@
                                 <select id="pattern-${song.id}-${index + 1}">
                                     ${timingPatterns(song.bpm).map((p, i) => `<option value="${p.value}" ${i === index ? 'selected' : ''}>${p.label}</option>`).join('')}
                                 </select>
-                                <select id="color-${song.id}-${index + 1}">
+                                <select id="color-${song.id}-${index + 1}" class="color-selector" style="background-color: ${color};">
                                     ${colors.map(c => `<option value="${c.value}" ${c.value === color ? 'selected' : ''}>${c.label}</option>`).join('')}
                                 </select>
                                 <button class="sendButton" data-song="${song.id}" data-pattern="${index + 1}">送信ボタン ${index + 1}</button>
@@ -97,6 +100,14 @@
     <script>
         const socket = io();
 
+        // 色リストボックスの背景色を変更
+        document.addEventListener('change', (event) => {
+            if (event.target.classList.contains('color-selector')) {
+                event.target.style.backgroundColor = event.target.value;
+            }
+        });
+
+        // 各送信ボタンの処理
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
@@ -106,8 +117,26 @@
                 const blinkPattern = patternElement.value;
                 const color = colorElement.value;
 
-                console.log(`Sending settings -> Song: ${song}, Pattern: ${blinkPattern}, Color: ${color}`);
-                socket.emit('update-settings', { color, blinkPattern });
+                // 点滅パターンのON/OFF時間を計算
+                let onTime = 250, offTime = 250;
+                const bpm = songs.find(s => s.id == song)?.bpm || 120;
+                const quarterBeat = Math.round(60000 / bpm / 4);
+                const halfBeat = Math.round(60000 / bpm / 2);
+                const oneBeat = Math.round(60000 / bpm);
+
+                if (blinkPattern.includes('quarterbeat')) {
+                    onTime = quarterBeat;
+                    offTime = quarterBeat;
+                } else if (blinkPattern.includes('halfbeat')) {
+                    onTime = halfBeat;
+                    offTime = halfBeat;
+                } else if (blinkPattern.includes('1beat')) {
+                    onTime = oneBeat;
+                    offTime = oneBeat;
+                }
+
+                console.log(`Sending settings -> Song: ${song}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
+                socket.emit('update-settings', { color, blinkPattern, onTime, offTime });
             });
         });
     </script>
