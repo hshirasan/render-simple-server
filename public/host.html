@@ -11,9 +11,19 @@
         .pattern-row {
             margin-bottom: 10px;
         }
+        .version-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
     </style>
 </head>
 <body>
+    <!-- バージョン情報の表示 -->
+    <div class="version-info">Version: 1.0.0</div>
     <h1>Host Panel with Buttons</h1>
 
     <!-- 曲ごとの設定 -->
@@ -179,7 +189,7 @@
     <script>
         const socket = io();
 
-        // ボタンごとの送信処理wwww
+        // ボタンごとの送信処理
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
