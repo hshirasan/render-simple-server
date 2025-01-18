@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: 1.06 -->
+<!-- Version: 1.07 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +17,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            color: black; /* 黒文字に変更 */
+            color: black;
             font-size: 14px;
             font-family: Arial, sans-serif;
             z-index: 1000;
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Version: 1.06</div>
+    <div class="version-info">Version: 1.07</div>
     <h1>Host Panel with Buttons</h1>
 
     <!-- 曲ごとの設定 -->
@@ -56,7 +56,6 @@
                     let defaultColor = song.defaultColor;
                     let defaultPattern = defaultPatterns[pattern - 1];
 
-                    // 最初のリスト項目を黒の常時点灯に設定
                     if (pattern === 1) {
                         defaultColor = "rgb(0, 0, 0)"; // 黒
                         defaultPattern = "always";    // 常時点灯
@@ -65,7 +64,7 @@
                     document.write(`
                         <div class="pattern-row">
                             <button class="sendButton" data-song="${song.id}" data-pattern="${pattern}">送信ボタン ${pattern}</button>
-                            <select id="color-${song.id}-${pattern}">
+                            <select id="color-${song}-${pattern}">
                                 <option value="rgb(255, 0, 0)" ${defaultColor === "rgb(255, 0, 0)" ? "selected" : ""}>赤</option>
                                 <option value="rgb(255, 255, 0)" ${defaultColor === "rgb(255, 255, 0)" ? "selected" : ""}>黄</option>
                                 <option value="rgb(0, 255, 0)">緑</option>
@@ -96,14 +95,30 @@
     <script>
         const socket = io();
 
+        socket.on('connect', () => {
+            console.log('Socket connected successfully.');
+        });
+
+        socket.on('disconnect', () => {
+            console.warn('Socket disconnected.');
+        });
+
         // ボタンごとの送信処理
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
                 try {
                     const song = button.dataset.song;
                     const pattern = button.dataset.pattern;
-                    const color = document.getElementById(`color-${song}-${pattern}`).value;
-                    const blinkPattern = document.getElementById(`pattern-${song.id}-${pattern}`).value;
+                    const colorElement = document.getElementById(`color-${song}-${pattern}`);
+                    const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
+
+                    if (!colorElement || !patternElement) {
+                        console.error(`Error: Element not found for song ${song}, pattern ${pattern}`);
+                        return;
+                    }
+
+                    const color = colorElement.value;
+                    const blinkPattern = patternElement.value;
 
                     console.log(`Sending for Song ${song}, Pattern ${pattern}: Color=${color}, Pattern=${blinkPattern}`); // デバッグログ
 
