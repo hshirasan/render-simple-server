@@ -1,5 +1,5 @@
 <!-- Filename: client_display.html -->
-<!-- Version: client_v2.6.0 -->
+<!-- Version: client_v2.6.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,7 +47,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v2.6.0</div>
+    <div class="version-info">Client Version: client_v2.6.1</div>
 
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
     <img id="png-image" src="/teamU.png" alt="PNG Image">
@@ -57,6 +57,7 @@
         const socket = io();
 
         let animationInterval;
+        let transitionTimeout;
 
         // サーバーからの設定を受信
         socket.on('update-display', (settings) => {
@@ -72,9 +73,14 @@
             qrCode.style.display = 'none';
             pngImage.style.display = 'none';
 
+            // 既存の点滅処理を完全に停止
             if (animationInterval) {
-                clearInterval(animationInterval); // 既存の点滅処理を停止
+                clearInterval(animationInterval);
                 animationInterval = null;
+            }
+            if (transitionTimeout) {
+                clearTimeout(transitionTimeout);
+                transitionTimeout = null;
             }
 
             switch (blinkPattern) {
@@ -117,7 +123,7 @@
                     console.log(`Starting blink pattern -> ON: ${onTime}ms, OFF: ${offTime}ms`);
                     animationInterval = setInterval(() => {
                         document.body.style.backgroundColor = color;
-                        setTimeout(() => {
+                        transitionTimeout = setTimeout(() => {
                             document.body.style.backgroundColor = 'black';
                         }, onTime);
                     }, onTime + offTime);
