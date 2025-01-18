@@ -1,5 +1,5 @@
 <!-- Filename: client_display.html -->
-<!-- Version: client_v2.5.2 -->
+<!-- Version: client_v2.6.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,7 +47,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v2.5.2</div>
+    <div class="version-info">Client Version: client_v2.6.0</div>
 
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
     <img id="png-image" src="/teamU.png" alt="PNG Image">
@@ -57,7 +57,6 @@
         const socket = io();
 
         let animationInterval;
-        let isTransitioning = false; // 切り替え中の状態フラグ
 
         // サーバーからの設定を受信
         socket.on('update-display', (settings) => {
@@ -73,11 +72,6 @@
             qrCode.style.display = 'none';
             pngImage.style.display = 'none';
 
-            if (isTransitioning) {
-                console.log('Transition in progress. Ignoring new commands.');
-                return;
-            }
-
             if (animationInterval) {
                 clearInterval(animationInterval); // 既存の点滅処理を停止
                 animationInterval = null;
@@ -92,12 +86,9 @@
                     break;
 
                 case 'always':
-                    isTransitioning = true; // 切り替え開始
-                    setTimeout(() => {
-                        document.body.style.transition = 'none';
-                        document.body.style.backgroundColor = color;
-                        isTransitioning = false; // 切り替え終了
-                    }, 0); // タイミング競合防止
+                    // 常時点灯
+                    document.body.style.transition = 'none';
+                    document.body.style.backgroundColor = color;
                     break;
 
                 case 'fade':
@@ -123,6 +114,7 @@
                 case 'blink-250-250':
                 case 'blink-500-500':
                     // 通常点滅
+                    console.log(`Starting blink pattern -> ON: ${onTime}ms, OFF: ${offTime}ms`);
                     animationInterval = setInterval(() => {
                         document.body.style.backgroundColor = color;
                         setTimeout(() => {
