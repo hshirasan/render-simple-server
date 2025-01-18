@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.2.1 -->
+<!-- Version: host_v1.2.3 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.2.1</div>
+    <div class="version-info">Host Version: host_v1.2.3</div>
     <h1>Host Panel with BPM-Based Patterns</h1>
 
     <!-- 曲ごとの設定 -->
@@ -33,8 +33,16 @@
         <fieldset>
             <legend>曲1 (BPM: 130)</legend>
             <div class="pattern-row">
-                <button class="sendButton" data-song="1" data-pattern="bpm130-1beat">1拍 (ON=231ms, OFF=231ms)</button>
-                <button class="sendButton" data-song="1" data-pattern="bpm130-halfbeat">1/2拍 (ON=115ms, OFF=115ms)</button>
+                <select id="pattern-1">
+                    <option value="always">常時点灯</option>
+                    <option value="fade">フェード (500ms)</option>
+                    <option value="blink-250-250">250ms 点滅</option>
+                    <option value="blink-500-500">500ms 点滅</option>
+                    <option value="single-fade-blink">単発点滅</option>
+                    <option value="bpm130-1beat">BPM 130 - 1拍 (ON=231ms, OFF=231ms)</option>
+                    <option value="bpm130-halfbeat">BPM 130 - 1/2拍 (ON=115ms, OFF=115ms)</option>
+                </select>
+                <button class="sendButton" data-song="1">送信</button>
             </div>
             <select id="color-1">
                 <option value="rgb(255, 0, 0)">赤</option>
@@ -53,12 +61,14 @@
         document.querySelectorAll('.sendButton').forEach((button) => {
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
-                const pattern = button.dataset.pattern;
+                const patternElement = document.getElementById(`pattern-${song}`);
                 const colorElement = document.getElementById(`color-${song}`);
+                const blinkPattern = patternElement ? patternElement.value : 'always';
                 const color = colorElement ? colorElement.value : 'black';
 
-                let onTime, offTime;
-                switch (pattern) {
+                let onTime = 250, offTime = 250; // デフォルト値
+
+                switch (blinkPattern) {
                     case 'bpm130-1beat':
                         onTime = 231;
                         offTime = 231;
@@ -67,15 +77,16 @@
                         onTime = 115;
                         offTime = 115;
                         break;
-                    default:
-                        console.warn(`Unknown pattern: ${pattern}`);
-                        return;
+                    case 'single-fade-blink':
+                        onTime = 200; // 単発点滅のON時間
+                        offTime = 0; // OFFは不要
+                        break;
                 }
 
-                console.log(`Sending settings for Song ${song}: Pattern=${pattern}, Color=${color}, ON=${onTime}ms, OFF=${offTime}ms`);
+                console.log(`Sending settings for Song ${song}: Pattern=${blinkPattern}, Color=${color}, ON=${onTime}ms, OFF=${offTime}ms`);
 
                 // サーバーに送信
-                socket.emit('update-settings', { color, blinkPattern: 'custom', onTime, offTime });
+                socket.emit('update-settings', { color, blinkPattern, onTime, offTime });
             });
         });
     </script>

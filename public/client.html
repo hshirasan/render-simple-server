@@ -1,5 +1,5 @@
 <!-- Filename: client.html -->
-<!-- Version: client_v1.2.0 -->
+<!-- Version: client_v1.2.3 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +46,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v1.2.0</div>
+    <div class="version-info">Client Version: client_v1.2.3</div>
 
     <!-- QRコード -->
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://example.com" alt="QR Code">
@@ -90,6 +90,15 @@
             pngImage.style.display = 'none';
 
             switch (blinkPattern) {
+                case 'single-fade-blink':
+                    console.log('Executing single fade blink...');
+                    document.body.style.transition = 'background-color 0.1s ease-in-out'; // フェードを有効化
+                    document.body.style.backgroundColor = color;
+                    animationTimeout = setTimeout(() => {
+                        document.body.style.backgroundColor = 'black'; // 元の色に戻す
+                    }, onTime); // ON時間だけ表示
+                    break;
+
                 case 'custom':
                     console.log(`Starting custom blink: ON=${onTime}ms, OFF=${offTime}ms`);
                     document.body.style.transition = 'none'; // フェードを無効化
