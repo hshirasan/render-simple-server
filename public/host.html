@@ -115,22 +115,22 @@
                         <div class="pattern-row">
                             <button class="sendButton" data-song="${song}" data-pattern="${pattern}">送信ボタン ${pattern}</button>
                             <select id="color-${song}-${pattern}">
-                                <option value="red" ${defaultColor === "red" ? "selected" : ""}>Red</option>
-                                <option value="yellow" ${defaultColor === "yellow" ? "selected" : ""}>Yellow</option>
-                                <option value="green" ${defaultColor === "green" ? "selected" : ""}>Green</option>
-                                <option value="pink" ${defaultColor === "pink" ? "selected" : ""}>Pink</option>
-                                <option value="purple" ${defaultColor === "purple" ? "selected" : ""}>Purple</option>
-                                <option value="cyan" ${defaultColor === "cyan" ? "selected" : ""}>Cyan</option>
-                                <option value="white" ${defaultColor === "white" ? "selected" : ""}>White</option>
-                                <option value="black" ${defaultColor === "black" ? "selected" : ""}>Black</option>
-                                <option value="orange" ${defaultColor === "orange" ? "selected" : ""}>Orange</option>
-                            </select>
+                                <option value="red">赤</option>
+                                <option value="yellow">黄</option>
+                                <option value="green">緑</option>
+                                <option value="pink">ピンク</option>
+                                <option value="purple" style="background-color: rgb(185, 185, 255);">紫</option>
+                                <option value="cyan">水色</option>
+                                <option value="white">白</option>
+                                <option value="black">黒</option>
+                                <option value="orange">オレンジ</option>
+                            <option value="light-blue" style="background-color: rgb(0, 128, 255);">薄青</option></select>
                             <select id="pattern-${song}-${pattern}">
-                                <option value="blink-250-250" ${defaultPattern === "blink-250-250" ? "selected" : ""}>250ms On / 250ms Off</option>
-                                <option value="blink-500-500" ${defaultPattern === "blink-500-500" ? "selected" : ""}>500ms On / 500ms Off</option>
-                                <option value="fade" ${defaultPattern === "fade" ? "selected" : ""}>Fade In / Fade Out</option>
-                                <option value="always" ${defaultPattern === "always" ? "selected" : ""}>Always On</option>
-                                <option value="single-fade-blink" ${defaultPattern === "single-fade-blink" ? "selected" : ""}>Single Fade Blink</option>
+                                <option value="blink-250-250">250msec点滅</option>
+                                <option value="blink-500-500">500msec点滅</option>
+                                <option value="fade">500msec_フェード</option>
+                                <option value="always">常時点灯</option>
+                                <option value="single-fade-blink">単発</option>
                             </select>
                         </div>
                     `);
