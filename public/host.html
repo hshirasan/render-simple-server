@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.7.5 -->
+<!-- Version: host_v1.7.6 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +39,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.7.5</div>
+    <div class="version-info">Host Version: host_v1.7.6</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -142,22 +142,10 @@
                 const selectedPattern = patternElement.value;
                 const color = colorElement.value;
 
-                let onTime = 0, offTime = 0;
+                const blinkPattern = (selectedPattern === 'always' && color === 'rgb(0, 0, 0)') ? 'qr-and-png' : selectedPattern;
 
-                const selectedPatternData = timingPatterns.find(p => p.value === selectedPattern);
-
-                if (selectedPatternData?.factor) {
-                    const bpm = songs.find(s => s.id == songId)?.bpm || 120;
-                    const beatTime = Math.round((60 / bpm) * 1000);
-                    onTime = beatTime / selectedPatternData.factor;
-                    offTime = beatTime / selectedPatternData.factor;
-                } else {
-                    onTime = selectedPatternData?.onTime || 0;
-                    offTime = selectedPatternData?.offTime || 0;
-                }
-
-                console.log(`Sending settings -> Song: ${songId}, Pattern: ${selectedPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
-                socket.emit('update-settings', { color, blinkPattern: selectedPattern, onTime, offTime });
+                console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}`);
+                socket.emit('update-settings', { color, blinkPattern });
             });
         });
 
