@@ -1,11 +1,11 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.3.8 -->
+<!-- Version: host_v1.4.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Panel with Explicit Descriptions</title>
+    <title>Host Panel with Updated Song Names</title>
     <style>
         fieldset {
             margin-bottom: 20px;
@@ -25,17 +25,17 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.3.8</div>
-    <h1>Host Panel with Explicit Descriptions</h1>
+    <div class="version-info">Host Version: host_v1.4.0</div>
+    <h1>Host Panel with Updated Song Names</h1>
 
     <!-- 曲ごとの設定 -->
     <div>
         <script>
             const songs = [
-                { id: 1, name: '1曲目', bpm: 130, defaultColor: 'rgb(255, 0, 0)' }, // 赤
-                { id: 2, name: '2曲目', bpm: 85, defaultColor: 'rgb(185, 185, 255)' }, // 紫
-                { id: 3, name: '3曲目', bpm: 135, defaultColor: 'rgb(0, 128, 255)' }, // 薄青
-                { id: 4, name: '4曲目', bpm: 100, defaultColor: 'rgb(255, 255, 0)' } // 黄
+                { id: 1, name: '私なしで', bpm: 130, defaultColor: 'rgb(255, 0, 0)' }, // 赤
+                { id: 2, name: "I'll be", bpm: 85, defaultColor: 'rgb(185, 185, 255)' }, // 紫
+                { id: 3, name: "I'll be", bpm: 85, defaultColor: 'rgb(0, 128, 255)' }, // 薄青
+                { id: 4, name: 'この指', bpm: 135, defaultColor: 'rgb(255, 255, 0)' } // 黄
             ];
 
             const patterns = [
@@ -48,14 +48,14 @@
 
             songs.forEach(song => {
                 const bpmSpecificPatterns = [
-                    { value: `bpm${song.bpm}-halfbeat`, label: `${song.name}・BPM${song.bpm}・1/2拍` },
-                    { value: `bpm${song.bpm}-1beat`, label: `${song.name}・BPM${song.bpm}・1拍` },
-                    { value: `bpm${song.bpm}-2beat`, label: `${song.name}・BPM${song.bpm}・2拍` }
+                    { value: `bpm${song.bpm}-halfbeat`, label: `${song.name}（BPM=${song.bpm}）・1/2拍` },
+                    { value: `bpm${song.bpm}-1beat`, label: `${song.name}（BPM=${song.bpm}）・1拍` },
+                    { value: `bpm${song.bpm}-2beat`, label: `${song.name}（BPM=${song.bpm}）・2拍` }
                 ];
 
                 document.write(`
                     <fieldset>
-                        <legend>${song.name} (BPM: ${song.bpm})</legend>
+                        <legend>${song.name}（BPM=${song.bpm}）</legend>
                 `);
 
                 for (let i = 1; i <= 6; i++) {
