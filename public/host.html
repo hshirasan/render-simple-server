@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v1.5.0 -->
+<!-- Version: host_v1.5.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,7 +35,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v1.5.0</div>
+    <div class="version-info">Host Version: host_v1.5.1</div>
     <h1>Host Panel</h1>
 
     <!-- 曲1～4の既存仕様 -->
@@ -130,8 +130,8 @@
             button.addEventListener('click', () => {
                 const song = button.dataset.song;
                 const pattern = button.dataset.pattern;
-                const patternElement = document.getElementById(`pattern-${song}-${pattern}`);
-                const colorElement = document.getElementById(`color-${song}-${pattern}`);
+                const patternElement = document.getElementById(`pattern-${song.id}-${pattern}`);
+                const colorElement = document.getElementById(`color-${song.id}-${pattern}`);
                 const blinkPattern = patternElement?.value || 'always';
                 const color = colorElement?.value || 'rgb(0, 0, 0)';
 
