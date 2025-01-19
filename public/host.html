@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.7.0 -->
+<!-- Version: host_v2.7.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,9 +26,11 @@
             z-index: 1000;
         }
     </style>
+    <!-- Socket.IO クライアントライブラリを読み込む -->
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.7.0</div>
+    <div class="version-info">Host Version: host_v2.7.1</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -40,30 +42,6 @@
                 { id: 4, name: 'この指', bpm: 132, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'] }
             ];
 
-            const timingPatterns = [
-                { label: '常時点灯', value: 'always', onTime: 0, offTime: 0 },
-                { label: '単発点滅', value: 'single-fade-blink', onTime: 100, offTime: 0 },
-                { label: `1/4拍（BPM=`, value: 'quarter-beat', factor: 4 },
-                { label: `1/2拍（BPM=`, value: 'half-beat', factor: 2 },
-                { label: `1拍（BPM=`, value: 'full-beat', factor: 1 },
-                { label: 'フェード（500msec）', value: 'fade', onTime: 500, offTime: 500 },
-                { label: '250msec点滅', value: 'blink-250-250', onTime: 250, offTime: 250 },
-                { label: '500msec点滅', value: 'blink-500-500', onTime: 500, offTime: 500 }
-            ];
-
-            const colors = [
-                { value: 'rgb(255, 0, 0)', label: '赤' },
-                { value: 'rgb(255, 255, 0)', label: '黄' },
-                { value: 'rgb(0, 255, 0)', label: '緑' },
-                { value: 'rgb(255, 192, 203)', label: 'ピンク' },
-                { value: 'rgb(185, 185, 255)', label: '紫' },
-                { value: 'rgb(0, 128, 255)', label: '薄青' },
-                { value: 'rgb(0, 255, 255)', label: '水色' },
-                { value: 'rgb(255, 165, 0)', label: '橙' },
-                { value: 'rgb(255, 255, 255)', label: '白' },
-                { value: 'rgb(0, 0, 0)', label: '黒' }
-            ];
-
             const sendSettings = (socket, settings) => {
                 console.log(`Sending settings: ${JSON.stringify(settings)}`);
                 socket.emit('update-settings', settings);
@@ -71,7 +49,7 @@
                 setTimeout(() => {
                     console.log(`Resending settings: ${JSON.stringify(settings)}`);
                     socket.emit('update-settings', settings);
-                }, 100); // 再送信間隔を100msに設定
+                }, 100);
             };
 
             const socket = io();
@@ -83,16 +61,26 @@
                         ${song.initialColors.map((color, index) => `
                             <div class="pattern-row">
                                 <select id="pattern-${song.id}-${index + 1}">
-                                    ${timingPatterns.map(p => `
-                                        <option value="${p.value}" ${p.value === 'always' && index === 0 ? 'selected' : ''}>
-                                            ${p.label.includes('BPM=') ? p.label + song.bpm + '）' : p.label}
-                                        </option>
-                                    `).join('')}
+                                    <option value="always" ${index === 0 ? 'selected' : ''}>常時点灯</option>
+                                    <option value="single-fade-blink">単発点滅</option>
+                                    <option value="quarter-beat">1/4拍</option>
+                                    <option value="half-beat">1/2拍</option>
+                                    <option value="full-beat">1拍</option>
+                                    <option value="fade">フェード</option>
+                                    <option value="blink-250-250">250msec点滅</option>
+                                    <option value="blink-500-500">500msec点滅</option>
                                 </select>
                                 <select id="color-${song.id}-${index + 1}" style="background-color: ${color};">
-                                    ${colors.map(c => `
-                                        <option value="${c.value}" ${c.value === color ? 'selected' : ''}>${c.label}</option>
-                                    `).join('')}
+                                    <option value="rgb(255, 0, 0)">赤</option>
+                                    <option value="rgb(255, 255, 0)">黄</option>
+                                    <option value="rgb(0, 255, 0)">緑</option>
+                                    <option value="rgb(255, 192, 203)">ピンク</option>
+                                    <option value="rgb(185, 185, 255)">紫</option>
+                                    <option value="rgb(0, 128, 255)">薄青</option>
+                                    <option value="rgb(0, 255, 255)">水色</option>
+                                    <option value="rgb(255, 165, 0)">橙</option>
+                                    <option value="rgb(255, 255, 255)">白</option>
+                                    <option value="rgb(0, 0, 0)">黒</option>
                                 </select>
                                 <button class="sendButton" data-song="${song.id}" data-pattern="${index + 1}">送信ボタン ${index + 1}</button>
                             </div>
@@ -111,21 +99,8 @@
                     const blinkPattern = patternElement.value;
                     const color = colorElement.value;
 
-                    let onTime = 0, offTime = 0;
-                    const selectedPattern = timingPatterns.find(p => p.value === blinkPattern);
-
-                    if (selectedPattern?.factor) {
-                        const bpm = songs.find(s => s.id == songId)?.bpm || 120;
-                        const beatTime = Math.round((60 / bpm) * 1000);
-                        onTime = beatTime / selectedPattern.factor;
-                        offTime = beatTime / selectedPattern.factor;
-                    } else {
-                        onTime = selectedPattern?.onTime || 0;
-                        offTime = selectedPattern?.offTime || 0;
-                    }
-
-                    const settings = { color, blinkPattern, onTime, offTime };
-                    sendSettings(socket, settings); // 設定送信
+                    const settings = { color, blinkPattern, onTime: 0, offTime: 0 };
+                    sendSettings(socket, settings);
                 });
             });
         </script>
