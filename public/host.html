@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v3.0.1 -->
+<!-- Version: host_v3.0.2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,16 +40,40 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v3.0.1</div>
+    <div class="version-info">Host Version: host_v3.0.2</div>
     <h1>Host Panel</h1>
 
     <div>
         <script>
             const songs = [
-                { id: 1, name: '私なしで', bpm: 130, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'] },
-                { id: 2, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'] },
-                { id: 3, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'] },
-                { id: 4, name: 'この指', bpm: 132, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'] }
+                {
+                    id: 1, name: '私なしで', bpm: 130, initialPatterns: [
+                        'always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'
+                    ], initialColors: [
+                        'rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'
+                    ]
+                },
+                {
+                    id: 2, name: "I'll be", bpm: 84, initialPatterns: [
+                        'always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'
+                    ], initialColors: [
+                        'rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'
+                    ]
+                },
+                {
+                    id: 3, name: "I'll be", bpm: 84, initialPatterns: [
+                        'always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'
+                    ], initialColors: [
+                        'rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'
+                    ]
+                },
+                {
+                    id: 4, name: 'この指', bpm: 132, initialPatterns: [
+                        'always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'
+                    ], initialColors: [
+                        'rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'
+                    ]
+                }
             ];
 
             const colors = [
@@ -71,21 +95,21 @@
                 document.write(`
                     <fieldset>
                         <legend>${song.name}（BPM=${song.bpm}）</legend>
-                        ${song.initialColors.map((color, index) => `
+                        ${song.initialPatterns.map((pattern, index) => `
                             <div class="pattern-row">
                                 <select id="pattern-${song.id}-${index + 1}">
-                                    <option value="always">常時点灯</option>
-                                    <option value="single-fade-blink">単発点滅</option>
-                                    <option value="quarter-beat">1/4拍（BPM=${song.bpm}）</option>
-                                    <option value="half-beat">1/2拍（BPM=${song.bpm}）</option>
-                                    <option value="full-beat">1拍（BPM=${song.bpm}）</option>
-                                    <option value="fade">フェード（500msec）</option>
-                                    <option value="blink-250-250">250msec点滅</option>
-                                    <option value="blink-500-500">500msec点滅</option>
+                                    <option value="always" ${pattern === 'always' ? 'selected' : ''}>常時点灯</option>
+                                    <option value="single-fade-blink" ${pattern === 'single-fade-blink' ? 'selected' : ''}>単発点滅</option>
+                                    <option value="quarter-beat" ${pattern === 'quarter-beat' ? 'selected' : ''}>1/4拍（BPM=${song.bpm}）</option>
+                                    <option value="half-beat" ${pattern === 'half-beat' ? 'selected' : ''}>1/2拍（BPM=${song.bpm}）</option>
+                                    <option value="full-beat" ${pattern === 'full-beat' ? 'selected' : ''}>1拍（BPM=${song.bpm}）</option>
+                                    <option value="fade" ${pattern === 'fade' ? 'selected' : ''}>フェード（500msec）</option>
+                                    <option value="blink-250-250" ${pattern === 'blink-250-250' ? 'selected' : ''}>250msec点滅</option>
+                                    <option value="blink-500-500" ${pattern === 'blink-500-500' ? 'selected' : ''}>500msec点滅</option>
                                 </select>
-                                <select id="color-${song.id}-${index + 1}" style="background-color: ${color};">
+                                <select id="color-${song.id}-${index + 1}" style="background-color: ${song.initialColors[index]};">
                                     ${colors.map(c => `
-                                        <option value="${c.value}" ${c.value === color ? 'selected' : ''}>${c.label}</option>
+                                        <option value="${c.value}" ${c.value === song.initialColors[index] ? 'selected' : ''}>${c.label}</option>
                                     `).join('')}
                                 </select>
                                 <button class="sendButton" data-song="${song.id}" data-pattern="${index + 1}">送信ボタン ${index + 1}</button>
@@ -93,46 +117,6 @@
                         `).join('')}
                     </fieldset>
                 `);
-            });
-
-            // ラジオボタンを追加
-            document.write(`
-                <fieldset>
-                    <legend>常時点灯</legend>
-                    <div class="color-buttons">
-                        ${colors.map((color, index) => `
-                            <div class="color-radio">
-                                <input type="radio" name="color-radio" id="color-radio-${index}" value="${color.value}">
-                                <label for="color-radio-${index}" style="color: ${color.value};">${color.label}</label>
-                            </div>
-                        `).join('')}
-                    </div>
-                </fieldset>
-            `);
-
-            // ラジオボタンの変更で送信
-            document.querySelectorAll('input[name="color-radio"]').forEach(radio => {
-                radio.addEventListener('change', (event) => {
-                    const selectedColor = event.target.value;
-                    console.log(`Sending Always On for color: ${selectedColor}`);
-                    socket.emit('update-settings', { color: selectedColor, blinkPattern: 'always', onTime: 0, offTime: 0 });
-                });
-            });
-
-            document.querySelectorAll('.sendButton').forEach(button => {
-                button.addEventListener('click', () => {
-                    const songId = button.dataset.song;
-                    const patternIndex = button.dataset.pattern - 1;
-                    const patternElement = document.getElementById(`pattern-${songId}-${patternIndex + 1}`);
-                    const colorElement = document.getElementById(`color-${songId}-${patternIndex + 1}`);
-                    const blinkPattern = patternElement.value;
-                    const color = colorElement.value;
-
-                    let onTime = 0, offTime = 0;
-                    const settings = { color, blinkPattern, onTime, offTime };
-                    console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}`);
-                    socket.emit('update-settings', settings);
-                });
             });
         </script>
     </div>
