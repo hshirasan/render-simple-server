@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.8.0 -->
+<!-- Version: host_v2.8.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,11 +26,11 @@
             z-index: 1000;
         }
     </style>
-    <!-- Socket.IO クライアントライブラリを読み込む -->
+    <!-- Socket.IO クライアントライブラリ -->
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.8.0</div>
+    <div class="version-info">Host Version: host_v2.8.1</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -120,6 +120,12 @@
                     console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
                     socket.emit('update-settings', settings);
                 });
+            });
+
+            document.addEventListener('change', (event) => {
+                if (event.target.classList.contains('color-selector')) {
+                    event.target.style.backgroundColor = event.target.value;
+                }
             });
         </script>
     </div>
