@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.5.4 -->
+<!-- Version: host_v2.5.5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +10,7 @@
         fieldset {
             margin-bottom: 20px;
         }
-        .pattern-row {/＝
+        .pattern-row {
             margin-bottom: 10px;
         }
         .color-selector {
@@ -40,7 +40,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.5.4</div>
+    <div class="version-info">Host Version: host_v2.5.5</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -160,6 +160,27 @@
                             socket.emit('update-settings', settings);
                         }, 500); // 500ms delay for second send
                     }
+                });
+            });
+
+            // 常時点灯10色ラジオボタンの追加
+            document.write('<fieldset><legend>常時点灯</legend>');
+            colors.forEach(color => {
+                document.write(`
+                    <div class="color-radio">
+                        <input type="radio" id="radio-${color.value}" name="color-radio" value="${color.value}">
+                        <label for="radio-${color.value}">${color.label}</label>
+                    </div>
+                `);
+            });
+            document.write('</fieldset>');
+
+            document.querySelectorAll('input[name="color-radio"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const color = radio.value;
+                    const settings = { color, blinkPattern: 'always', onTime: 0, offTime: 0 };
+                    console.log(`Radio button selected -> Color: ${color}`);
+                    socket.emit('update-settings', settings);
                 });
             });
         </script>
