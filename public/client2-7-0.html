@@ -1,0 +1,159 @@
+<!-- Filename: client_display.html -->
+<!-- Version: client_v2.7.0 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Display</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black; /* 初期状態を黒に設定 */
+            transition: background-color 0s; /* デフォルトでフェードを無効化 */
+        }
+
+        .version-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+        }
+
+        #qr-code {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
+
+        #png-image {
+            position: absolute;
+            top: 50px;
+            left: 160px;
+            width: 200px;
+            height: 100px;
+            display: none; /* 初期状態は非表示 */
+        }
+    </style>
+</head>
+<body>
+    <div class="version-info">Client Version: client_v2.7.0</div>
+
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
+    <img id="png-image" src="/teamU.png" alt="PNG Image">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        let animationInterval;
+        let connectionCheckInterval;
+        let lastServerResponse = Date.now(); // サーバーからの最後の応答時刻
+
+        // サーバーからの設定を受信
+        socket.on('update-display', (settings) => {
+            console.log('Received settings:', settings);
+
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
+
+            const { color, blinkPattern, onTime, offTime } = settings;
+            const qrCode = document.getElementById('qr-code');
+            const pngImage = document.getElementById('png-image');
+
+            // 背景色と表示を初期化
+            document.body.style.transition = '';
+            document.body.style.backgroundColor = 'black';
+            qrCode.style.display = 'none';
+            pngImage.style.display = 'none';
+
+            if (animationInterval) {
+                clearInterval(animationInterval); // 既存の点滅処理を停止
+                animationInterval = null;
+            }
+
+            switch (blinkPattern) {
+                case 'qr-and-png':
+                    // 黒画面時にQRコードとPNG画像を表示
+                    document.body.style.backgroundColor = 'black';
+                    qrCode.style.display = 'block';
+                    pngImage.style.display = 'block';
+                    break;
+
+                case 'always':
+                    // 常時点灯
+                    document.body.style.transition = 'none';
+                    document.body.style.backgroundColor = color;
+                    break;
+
+                case 'fade':
+                    // フェードイン・アウト
+                    document.body.style.transition = 'background-color 0.5s ease-in-out';
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor = document.body.style.backgroundColor === 'black' ? color : 'black';
+                    }, 1000);
+                    break;
+
+                case 'single-fade-blink':
+                    // 単発点滅
+                    document.body.style.transition = 'background-color 0.1s ease-in-out';
+                    document.body.style.backgroundColor = color;
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = 'black';
+                    }, onTime);
+                    break;
+
+                case 'quarter-beat':
+                case 'half-beat':
+                case 'full-beat':
+                case 'blink-250-250':
+                case 'blink-500-500':
+                    // 通常点滅
+                    console.log(`Starting blink pattern -> ON: ${onTime}ms, OFF: ${offTime}ms`);
+                    animationInterval = setInterval(() => {
+                        document.body.style.backgroundColor = color;
+                        setTimeout(() => {
+                            document.body.style.backgroundColor = 'black';
+                        }, onTime);
+                    }, onTime + offTime);
+                    break;
+
+                default:
+                    console.warn(`Unknown blink pattern: ${blinkPattern}`);
+            }
+        });
+
+        // サーバーからの心拍信号
+        socket.on('heartbeat', (data) => {
+            console.log('Heartbeat received:', data);
+            lastServerResponse = Date.now(); // サーバー応答時刻を更新
+        });
+
+        // 接続状態の確認
+        connectionCheckInterval = setInterval(() => {
+            const now = Date.now();
+            if (now - lastServerResponse > 5000) { // サーバー応答が5秒以上ない場合
+                console.warn('Connection lost. Switching to black.');
+                document.body.style.backgroundColor = 'black'; // 画面を真っ黒にする
+                if (animationInterval) {
+                    clearInterval(animationInterval); // 点滅処理をリセット
+                    animationInterval = null;
+                }
+                const qrCode = document.getElementById('qr-code');
+                const pngImage = document.getElementById('png-image');
+                qrCode.style.display = 'none';
+                pngImage.style.display = 'none';
+            }
+        }, 1000); // 1秒ごとに接続を確認
+    </script>
+</body>
+</html>
