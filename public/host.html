@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.9.0 -->
+<!-- Version: host_v3.0.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,16 +30,16 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.9.0</div>
+    <div class="version-info">Host Version: host_v3.0.0</div>
     <h1>Host Panel</h1>
 
     <div>
         <script>
             const songs = [
-                { id: 1, name: '私なしで', bpm: 130, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'] },
-                { id: 2, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'] },
-                { id: 3, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'] },
-                { id: 4, name: 'この指', bpm: 132, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'] }
+                { id: 1, name: '私なしで', bpm: 130, initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'], initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'] },
+                { id: 2, name: "I'll be", bpm: 84, initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'], initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'] },
+                { id: 3, name: "I'll be", bpm: 84, initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'], initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'] },
+                { id: 4, name: 'この指', bpm: 132, initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500'], initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'] }
             ];
 
             const timingPatterns = [
@@ -72,18 +72,18 @@
                 document.write(`
                     <fieldset>
                         <legend>${song.name}（BPM=${song.bpm}）</legend>
-                        ${song.initialColors.map((color, index) => `
+                        ${song.initialPatterns.map((pattern, index) => `
                             <div class="pattern-row">
                                 <select id="pattern-${song.id}-${index + 1}">
                                     ${timingPatterns.map(p => `
-                                        <option value="${p.value}" ${p.value === 'always' && index === 0 ? 'selected' : ''}>
+                                        <option value="${p.value}" ${p.value === pattern ? 'selected' : ''}>
                                             ${p.label.includes('BPM=') ? p.label + song.bpm + '）' : p.label}
                                         </option>
                                     `).join('')}
                                 </select>
-                                <select id="color-${song.id}-${index + 1}" style="background-color: ${color};">
+                                <select id="color-${song.id}-${index + 1}" style="background-color: ${song.initialColors[index]};">
                                     ${colors.map(c => `
-                                        <option value="${c.value}" ${c.value === color ? 'selected' : ''}>${c.label}</option>
+                                        <option value="${c.value}" ${c.value === song.initialColors[index] ? 'selected' : ''}>${c.label}</option>
                                     `).join('')}
                                 </select>
                                 <button class="sendButton" data-song="${song.id}" data-pattern="${index + 1}">送信ボタン ${index + 1}</button>
@@ -120,7 +120,6 @@
                     console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
                     socket.emit('update-settings', settings);
 
-                    // 常時点灯の場合、2回目のコマンドを遅延送信
                     if (blinkPattern === 'always') {
                         setTimeout(() => {
                             console.log(`Re-sending settings (2nd time) -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
