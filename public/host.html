@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.6.0 -->
+<!-- Version: host_v2.7.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,23 +13,8 @@
         .pattern-row {
             margin-bottom: 10px;
         }
-        .color-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        .color-radio {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
         .color-selector {
             background-color: initial;
-            color: black;
-        }
-        .color-selector[data-color="rgb(0, 0, 0)"] {
-            color: white;
         }
         .version-info {
             position: absolute;
@@ -43,32 +28,16 @@
     </style>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.6.0</div>
+    <div class="version-info">Host Version: host_v2.7.0</div>
     <h1>Host Panel</h1>
 
     <div>
         <script>
             const songs = [
-                {
-                    id: 1, name: '私なしで', bpm: 130,
-                    initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'],
-                    initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500']
-                },
-                {
-                    id: 2, name: "I'll be", bpm: 84,
-                    initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'],
-                    initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500']
-                },
-                {
-                    id: 3, name: "I'll be", bpm: 84,
-                    initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'],
-                    initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500']
-                },
-                {
-                    id: 4, name: 'この指', bpm: 132,
-                    initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'],
-                    initialPatterns: ['always', 'single-fade-blink', 'quarter-beat', 'half-beat', 'full-beat', 'fade', 'always', 'blink-250-250', 'blink-500-500']
-                }
+                { id: 1, name: '私なしで', bpm: 130, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 0, 0)'] },
+                { id: 2, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)', 'rgb(185, 185, 255)'] },
+                { id: 3, name: "I'll be", bpm: 84, initialColors: ['rgb(0, 0, 0)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)', 'rgb(0, 128, 255)'] },
+                { id: 4, name: 'この指', bpm: 132, initialColors: ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 0)'] }
             ];
 
             const timingPatterns = [
@@ -95,6 +64,18 @@
                 { value: 'rgb(0, 0, 0)', label: '黒' }
             ];
 
+            const sendSettings = (socket, settings) => {
+                console.log(`Sending settings: ${JSON.stringify(settings)}`);
+                socket.emit('update-settings', settings);
+                // 100ms後に再送信
+                setTimeout(() => {
+                    console.log(`Resending settings: ${JSON.stringify(settings)}`);
+                    socket.emit('update-settings', settings);
+                }, 100); // 再送信間隔を100msに設定
+            };
+
+            const socket = io();
+
             songs.forEach(song => {
                 document.write(`
                     <fieldset>
@@ -103,12 +84,12 @@
                             <div class="pattern-row">
                                 <select id="pattern-${song.id}-${index + 1}">
                                     ${timingPatterns.map(p => `
-                                        <option value="${p.value}" ${p.value === song.initialPatterns[index] ? 'selected' : ''}>
+                                        <option value="${p.value}" ${p.value === 'always' && index === 0 ? 'selected' : ''}>
                                             ${p.label.includes('BPM=') ? p.label + song.bpm + '）' : p.label}
                                         </option>
                                     `).join('')}
                                 </select>
-                                <select id="color-${song.id}-${index + 1}" class="color-selector" data-color="${color}" style="background-color: ${color};">
+                                <select id="color-${song.id}-${index + 1}" style="background-color: ${color};">
                                     ${colors.map(c => `
                                         <option value="${c.value}" ${c.value === color ? 'selected' : ''}>${c.label}</option>
                                     `).join('')}
@@ -120,73 +101,34 @@
                 `);
             });
 
-            // 最下部にラジオボタンを追加
-            document.write(`
-                <fieldset>
-                    <legend>常時点灯</legend>
-                    <div class="color-buttons">
-                        ${colors.map((color, index) => `
-                            <div class="color-radio">
-                                <input type="radio" name="color-radio" id="color-radio-${index}" value="${color.value}">
-                                <label for="color-radio-${index}" style="color: black;">${color.label}</label>
-                            </div>
-                        `).join('')}
-                    </div>
-                </fieldset>
-            `);
+            document.querySelectorAll('.sendButton').forEach(button => {
+                button.addEventListener('click', () => {
+                    const songId = button.dataset.song;
+                    const patternIndex = button.dataset.pattern - 1;
+                    const patternElement = document.getElementById(`pattern-${songId}-${patternIndex + 1}`);
+                    const colorElement = document.getElementById(`color-${songId}-${patternIndex + 1}`);
+
+                    const blinkPattern = patternElement.value;
+                    const color = colorElement.value;
+
+                    let onTime = 0, offTime = 0;
+                    const selectedPattern = timingPatterns.find(p => p.value === blinkPattern);
+
+                    if (selectedPattern?.factor) {
+                        const bpm = songs.find(s => s.id == songId)?.bpm || 120;
+                        const beatTime = Math.round((60 / bpm) * 1000);
+                        onTime = beatTime / selectedPattern.factor;
+                        offTime = beatTime / selectedPattern.factor;
+                    } else {
+                        onTime = selectedPattern?.onTime || 0;
+                        offTime = selectedPattern?.offTime || 0;
+                    }
+
+                    const settings = { color, blinkPattern, onTime, offTime };
+                    sendSettings(socket, settings); // 設定送信
+                });
+            });
         </script>
     </div>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-
-        document.querySelectorAll('input[name="color-radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
-                const selectedColor = event.target.value;
-                const blinkPattern = selectedColor === 'rgb(0, 0, 0)' ? 'qr-and-png' : 'always';
-                console.log(`Sending Always On -> Color: ${selectedColor}`);
-                socket.emit('update-settings', { color: selectedColor, blinkPattern });
-            });
-        });
-
-        document.querySelectorAll('.sendButton').forEach(button => {
-            button.addEventListener('click', () => {
-                const songId = button.dataset.song;
-                const patternIndex = button.dataset.pattern - 1;
-
-                const patternElement = document.getElementById(`pattern-${songId}-${patternIndex + 1}`);
-                const colorElement = document.getElementById(`color-${songId}-${patternIndex + 1}`);
-                const blinkPattern = (colorElement.value === 'rgb(0, 0, 0)' && patternElement.value === 'always') ? 'qr-and-png' : patternElement.value;
-                const color = colorElement.value;
-
-                let onTime = 0, offTime = 0;
-
-                const selectedPattern = timingPatterns.find(p => p.value === blinkPattern);
-
-                if (selectedPattern?.factor) {
-                    const bpm = songs.find(s => s.id == songId)?.bpm || 120;
-                    const beatTime = Math.round((60 / bpm) * 1000);
-                    onTime = beatTime / selectedPattern.factor;
-                    offTime = beatTime / selectedPattern.factor;
-                } else {
-                    onTime = selectedPattern?.onTime || 0;
-                    offTime = selectedPattern?.offTime || 0;
-                }
-
-                console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
-                socket.emit('update-settings', { blinkPattern, color, onTime, offTime });
-            });
-        });
-
-        document.addEventListener('change', (event) => {
-            if (event.target.classList.contains('color-selector')) {
-                const selectedColor = event.target.value;
-                event.target.style.backgroundColor = selectedColor;
-                event.target.dataset.color = selectedColor;
-                event.target.style.color = selectedColor === 'rgb(0, 0, 0)' ? 'white' : 'black';
-            }
-        });
-    </script>
 </body>
 </html>
