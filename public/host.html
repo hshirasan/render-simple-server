@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.5.3 -->
+<!-- Version: host_v2.5.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +10,7 @@
         fieldset {
             margin-bottom: 20px;
         }
-        .pattern-row {
+        .pattern-row {/＝
             margin-bottom: 10px;
         }
         .color-selector {
@@ -40,7 +40,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.5.3</div>
+    <div class="version-info">Host Version: host_v2.5.4</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -119,23 +119,46 @@
                 `);
             });
 
+            // 常時点灯コマンドを2回送信
             document.querySelectorAll('.sendButton').forEach(button => {
                 button.addEventListener('click', () => {
                     const songId = button.dataset.song;
                     const patternIndex = button.dataset.pattern - 1;
                     const patternElement = document.getElementById(`pattern-${songId}-${patternIndex + 1}`);
                     const colorElement = document.getElementById(`color-${songId}-${patternIndex + 1}`);
+
                     const blinkPattern = patternElement.value;
                     const color = colorElement.value;
 
                     let onTime = 0, offTime = 0;
-                    const selectedPattern = songs.find(p => p.value === blinkPattern);
+                    if (blinkPattern === 'quarter-beat' || blinkPattern === 'half-beat' || blinkPattern === 'full-beat') {
+                        const bpm = songs.find(s => s.id == songId)?.bpm || 120;
+                        const beatTime = Math.round((60 / bpm) * 1000);
+                        const factor = blinkPattern === 'quarter-beat' ? 4 : blinkPattern === 'half-beat' ? 2 : 1;
+                        onTime = beatTime / factor;
+                        offTime = beatTime / factor;
+                    } else if (blinkPattern === 'fade') {
+                        onTime = 500;
+                        offTime = 500;
+                    } else if (blinkPattern === 'blink-250-250') {
+                        onTime = 250;
+                        offTime = 250;
+                    } else if (blinkPattern === 'blink-500-500') {
+                        onTime = 500;
+                        offTime = 500;
+                    }
 
-                    const settings = { blinkPattern, color, onTime, offTime };
+                    const settings = { color, blinkPattern, onTime, offTime };
+
+                    console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}, OFF=${offTime}`);
                     socket.emit('update-settings', settings);
 
+                    // 2回目の送信
                     if (blinkPattern === 'always') {
-                        setTimeout(() => socket.emit('update-settings', settings), 500);
+                        setTimeout(() => {
+                            console.log(`Re-sending for always-on -> Song: ${songId}, Color: ${color}`);
+                            socket.emit('update-settings', settings);
+                        }, 500); // 500ms delay for second send
                     }
                 });
             });
