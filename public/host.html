@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v2.5.5 -->
+<!-- Version: host_v2.5.6 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,7 +40,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v2.5.5</div>
+    <div class="version-info">Host Version: host_v2.5.6</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -131,7 +131,10 @@
                     const color = colorElement.value;
 
                     let onTime = 0, offTime = 0;
-                    if (blinkPattern === 'quarter-beat' || blinkPattern === 'half-beat' || blinkPattern === 'full-beat') {
+                    if (blinkPattern === 'single-fade-blink') {
+                        onTime = 100;
+                        offTime = 100;
+                    } else if (blinkPattern === 'quarter-beat' || blinkPattern === 'half-beat' || blinkPattern === 'full-beat') {
                         const bpm = songs.find(s => s.id == songId)?.bpm || 120;
                         const beatTime = Math.round((60 / bpm) * 1000);
                         const factor = blinkPattern === 'quarter-beat' ? 4 : blinkPattern === 'half-beat' ? 2 : 1;
