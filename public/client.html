@@ -1,5 +1,5 @@
 <!-- Filename: client_panel.html -->
-<!-- Version: client_v2.7.4 -->
+<!-- Version: client_v2.7.5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +38,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v2.7.4</div>
+    <div class="version-info">Client Version: client_v2.7.5</div>
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code" width="100" height="100">
     <img id="png-image" src="/teamU.png" alt="PNG Image" width="100" height="100">
     <script>
@@ -65,11 +65,9 @@
                     if (opacity <= 0) {
                         opacity = 0;
                         increment = 0.1;
-                        body.style.backgroundColor = 'black';
                     } else if (opacity >= 1) {
                         opacity = 1;
                         increment = -0.1;
-                        body.style.backgroundColor = color;
                     }
                     const [r, g, b] = color.match(/\d+/g);
                     const backgroundColor = opacity > 0 ? `rgba(${r}, ${g}, ${b}, ${opacity})` : 'black';
