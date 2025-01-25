@@ -1,5 +1,5 @@
 <!-- Filename: host_panel.html -->
-<!-- Version: host_v3.1.0 -->
+<!-- Version: host_v3.1.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +16,9 @@
         .color-selector {
             background-color: initial;
         }
+        .color-selector[data-color="rgb(0, 0, 0)"] {
+            color: white;
+        }
         .version-info {
             position: absolute;
             top: 10px;
@@ -30,7 +33,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Host Version: host_v3.1.0</div>
+    <div class="version-info">Host Version: host_v3.1.1</div>
     <h1>Host Panel</h1>
 
     <div>
@@ -97,7 +100,7 @@
                                     <option value="blink-250-250" ${pattern === 'blink-250-250' ? 'selected' : ''}>250msec点滅</option>
                                     <option value="blink-500-500" ${pattern === 'blink-500-500' ? 'selected' : ''}>500msec点滅</option>
                                 </select>
-                                <select id="color-${song.id}-${index + 1}" class="color-selector" style="background-color: ${song.initialColors[index]};">
+                                <select id="color-${song.id}-${index + 1}" class="color-selector" style="background-color: ${song.initialColors[index]}; color: ${song.initialColors[index] === 'rgb(0, 0, 0)' ? 'white' : 'black'}" data-color="${song.initialColors[index]}">
                                     ${colors.map(c => `
                                         <option value="${c.value}" ${c.value === song.initialColors[index] ? 'selected' : ''}>${c.label}</option>
                                     `).join('')}
@@ -155,6 +158,7 @@
             document.addEventListener('change', (event) => {
                 if (event.target.classList.contains('color-selector')) {
                     event.target.style.backgroundColor = event.target.value;
+                    event.target.style.color = event.target.value === 'rgb(0, 0, 0)' ? 'white' : 'black';
                 }
             });
         </script>
