@@ -1,5 +1,5 @@
 <!-- Filename: client_panel.html -->
-<!-- Version: client_v2.8.0 -->
+<!-- Version: client_v2.7.9 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +38,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v2.8.0</div>
+    <div class="version-info">Client Version: client_v2.7.9</div>
     <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code" width="100" height="100">
     <img id="png-image" src="/teamU.png" alt="PNG Image" width="100" height="100">
     <script>
@@ -70,9 +70,9 @@
                         fadeDirection = 1;
                     }
 
-                    const [r, g, b] = color.match(/\d+/g).map(Number);
+                    const [r, g, b] = color.match(/\d+/g);
                     const interpolatedColor = `rgb(${Math.round(r * fadeStep)}, ${Math.round(g * fadeStep)}, ${Math.round(b * fadeStep)})`;
-                    body.style.backgroundColor = fadeDirection === 1 ? interpolatedColor : 'rgb(0, 0, 0)';
+                    body.style.backgroundColor = interpolatedColor;
                 }, onTime / 10);
 
                 qrCode.style.display = 'none';
