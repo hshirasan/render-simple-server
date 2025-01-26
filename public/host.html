@@ -124,49 +124,45 @@
                     const color = colorElement.value;
 
                     let onTime = 0, offTime = 0;
-                    const selectedPattern = songs.find(s => s.id == songId).initialPatterns[patternIndex];
+                    const selectedPattern = songs[songId - 1]?.initialPatterns[patternIndex];
 
-                    if (selectedPattern === 'fade' || selectedPattern === 'fade-slow') {
-                        const bpm = songs.find(s => s.id == songId).bpm;
-                        const multiplier = selectedPattern === 'fade-slow' ? 2 : 1;
-                        onTime = offTime = (60000 / bpm) * multiplier;
-                    } else if (selectedPattern?.includes('beat')) {
-                        const bpm = songs.find(s => s.id == songId).bpm;
-                        const beatTime = 60000 / bpm;
-                        if (selectedPattern === 'quarter-beat') {
-                            onTime = beatTime / 4;
-                            offTime = beatTime / 4;
-                        } else if (selectedPattern === 'half-beat') {
-                            onTime = beatTime / 2;
-                            offTime = beatTime / 2;
-                        } else if (selectedPattern === 'full-beat') {
-                            onTime = beatTime;
-                            offTime = beatTime;
-                        }
+                    if (selectedPattern === 'quarter-beat' || selectedPattern === 'half-beat' || selectedPattern === 'full-beat') {
+                        const bpm = songs[songId - 1]?.bpm || 120;
+                        const beatTime = Math.round((60 / bpm) * 1000);
+                        onTime = selectedPattern === 'quarter-beat' ? beatTime / 4 :
+                                selectedPattern === 'half-beat' ? beatTime / 2 : beatTime;
+                        offTime = onTime;
+                    } else if (selectedPattern === 'fade' || selectedPattern === 'fade-slow') {
+                        const bpm = songs[songId - 1]?.bpm || 120;
+                        const beatTime = Math.round((60 / bpm) * 1000);
+                        onTime = selectedPattern === 'fade' ? beatTime : beatTime * 2;
+                        offTime = onTime;
                     } else {
-                        const patternDetails = {
-                            'fade': { onTime: 500, offTime: 500 },
-                            'blink-250-250': { onTime: 250, offTime: 250 },
-                            'blink-500-500': { onTime: 500, offTime: 500 },
-                            'always': { onTime: 0, offTime: 0 },
-                            'single-fade-blink': { onTime: 100, offTime: 0 }
-                        };
-                        ({ onTime, offTime } = patternDetails[blinkPattern] || { onTime: 0, offTime: 0 });
+                        const patternConfig = colors.find(c => c.value === blinkPattern);
+                        onTime = patternConfig?.onTime || 0;
+                        offTime = patternConfig?.offTime || 0;
                     }
 
-                    const settings = { color, blinkPattern, onTime, offTime };
                     console.log(`Sending settings -> Song: ${songId}, Pattern: ${blinkPattern}, Color: ${color}, ON=${onTime}ms, OFF=${offTime}ms`);
-                    socket.emit('update-settings', settings);
+                    socket.emit('update-settings', { color, blinkPattern, onTime, offTime });
                 });
             });
 
             document.addEventListener('change', (event) => {
                 if (event.target.classList.contains('color-selector')) {
-                    event.target.style.backgroundColor = event.target.value;
-                    event.target.style.color = event.target.value === 'rgb(0, 0, 0)' ? 'white' : 'black';
+                    const selectedColor = event.target.value;
+                    event.target.style.backgroundColor = selectedColor;
+                    event.target.style.color = selectedColor === 'rgb(0, 0, 0)' ? 'white' : 'black';
                 }
             });
         </script>
     </div>
 </body>
 </html>
+
+
+
+
+
+
+
