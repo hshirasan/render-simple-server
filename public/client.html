@@ -1,15 +1,30 @@
-<!-- Filename: client.html -->
-<!-- Version: client_v2.8.0 -->
+<!-- Filename: client_panel.html -->
+<!-- Version: client_v2.8.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Display</title>
+    <title>Client Panel</title>
     <style>
         body {
             margin: 0;
-            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        img {
+            position: absolute;
+            top: 50px;
+            display: none;
+        }
+        #qr-code {
+            left: 50px;
+        }
+        #png-image {
+            left: 160px;
         }
         .version-info {
             position: absolute;
@@ -18,90 +33,79 @@
             color: white;
             font-size: 14px;
             font-family: Arial, sans-serif;
-            z-index: 1000;
-        }
-        #qr-code {
-            position: absolute;
-            top: 50px;
-            left: 50px;
-            width: 100px;
-            height: 100px;
-            display: none;
-        }
-        #png-image {
-            position: absolute;
-            top: 50px;
-            left: 160px;
-            width: 160px;
-            height: 100px;
-            display: none;
         }
     </style>
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v2.8.0</div>
-    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
-    <img id="png-image" src="/teamU.png" alt="PNG Image">
-
+    <div class="version-info">Client Version: client_v2.8.1</div>
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code" width="100" height="100">
+    <img id="png-image" src="/teamU.png" alt="PNG Image" width="160" height="100">
     <script>
         const socket = io();
-        const body = document.body;
-        const qrCode = document.getElementById('qr-code');
-        const pngImage = document.getElementById('png-image');
+        let blinkInterval;
 
-        function updateDisplay(color, blinkPattern, onTime, offTime) {
+        function applySettings({ color, blinkPattern, onTime, offTime }) {
+            const body = document.body;
+            const qrCode = document.getElementById('qr-code');
+            const pngImage = document.getElementById('png-image');
+
+            clearInterval(blinkInterval);
+
             if (blinkPattern === 'always') {
                 body.style.backgroundColor = color;
-                qrCode.style.display = color === 'rgb(0, 0, 0)' ? 'block' : 'none';
-                pngImage.style.display = color === 'rgb(0, 0, 0)' ? 'block' : 'none';
-                return;
-            }
+                const showImages = color === 'rgb(0, 0, 0)';
+                qrCode.style.display = showImages ? 'block' : 'none';
+                pngImage.style.display = showImages ? 'block' : 'none';
+            } else if (blinkPattern === 'fade') {
+                let fadeDirection = 1;
+                let fadeStep = 0;
+                blinkInterval = setInterval(() => {
+                    fadeStep += fadeDirection * 0.1;
+                    if (fadeStep >= 1) {
+                        fadeStep = 1;
+                        fadeDirection = -1;
+                    } else if (fadeStep <= 0) {
+                        fadeStep = 0;
+                        fadeDirection = 1;
+                    }
 
-            qrCode.style.display = 'none';
-            pngImage.style.display = 'none';
+                    const [r, g, b] = color.match(/\d+/g).map(Number);
+                    const interpolatedColor = `rgb(${Math.round(r * fadeStep)}, ${Math.round(g * fadeStep)}, ${Math.round(b * fadeStep)})`;
+                    body.style.backgroundColor = interpolatedColor;
+                }, onTime / 10);
 
-            if (blinkPattern === 'fade' || blinkPattern === 'fade-slow') {
-                const fadeDuration = blinkPattern === 'fade' ? onTime : onTime * 2;
-                body.style.transition = `background-color ${fadeDuration}ms linear`;
-                body.style.backgroundColor = color;
-
-                setTimeout(() => {
-                    body.style.backgroundColor = 'rgb(0, 0, 0)';
-                }, fadeDuration);
-                return;
-            }
-
-            if (blinkPattern === 'single-fade-blink') {
-                body.style.transition = '';
+                qrCode.style.display = 'none';
+                pngImage.style.display = 'none';
+            } else if (blinkPattern === 'single-fade-blink') {
                 body.style.backgroundColor = color;
                 setTimeout(() => {
                     body.style.backgroundColor = 'rgb(0, 0, 0)';
                 }, onTime);
-                return;
-            }
-
-            if (onTime > 0 && offTime > 0) {
+                qrCode.style.display = 'none';
+                pngImage.style.display = 'none';
+            } else {
                 let isOn = true;
-                clearInterval(window.blinkInterval);
-                window.blinkInterval = setInterval(() => {
+                blinkInterval = setInterval(() => {
                     body.style.backgroundColor = isOn ? color : 'rgb(0, 0, 0)';
                     isOn = !isOn;
                 }, isOn ? onTime : offTime);
+                qrCode.style.display = 'none';
+                pngImage.style.display = 'none';
             }
         }
 
-        socket.on('update-display', ({ color, blinkPattern, onTime, offTime }) => {
-            console.log(`Received settings: Color=${color}, Pattern=${blinkPattern}, ON=${onTime}ms, OFF=${offTime}ms`);
-            updateDisplay(color, blinkPattern, onTime, offTime);
+        socket.on('update-display', (settings) => {
+            console.log('Received settings:', settings);
+            applySettings(settings);
         });
 
-        socket.on('heartbeat', () => {
-            console.log('Heartbeat received');
+        socket.on('heartbeat', (data) => {
+            console.log('Heartbeat received', data);
         });
 
         window.addEventListener('beforeunload', () => {
-            clearInterval(window.blinkInterval);
+            socket.close();
         });
     </script>
 </body>
