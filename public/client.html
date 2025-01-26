@@ -1,11 +1,11 @@
-<!-- Filename: client_panel.html -->
-<!-- Version: client_v2.8.1 -->
+<!-- Filename: client.html -->
+<!-- Version: client_v2.8.2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Panel</title>
+    <title>Client Display</title>
     <style>
         body {
             margin: 0;
@@ -22,9 +22,13 @@
         }
         #qr-code {
             left: 50px;
+            width: 100px;
+            height: 100px;
         }
         #png-image {
             left: 160px;
+            width: 160px;
+            height: 100px;
         }
         .version-info {
             position: absolute;
@@ -38,9 +42,10 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="version-info">Client Version: client_v2.8.1</div>
-    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code" width="100" height="100">
-    <img id="png-image" src="/teamU.png" alt="PNG Image" width="160" height="100">
+    <div class="version-info">Client Version: client_v2.8.2</div>
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://render-simple-server.onrender.com/client.html" alt="QR Code">
+    <img id="png-image" src="/teamU.png" alt="PNG Image">
+
     <script>
         const socket = io();
         let blinkInterval;
@@ -57,9 +62,10 @@
                 const showImages = color === 'rgb(0, 0, 0)';
                 qrCode.style.display = showImages ? 'block' : 'none';
                 pngImage.style.display = showImages ? 'block' : 'none';
-            } else if (blinkPattern === 'fade') {
+            } else if (blinkPattern === 'fade' || blinkPattern === 'fade-slow') {
                 let fadeDirection = 1;
                 let fadeStep = 0;
+                const fadeInterval = blinkPattern === 'fade' ? onTime / 10 : (onTime * 2) / 10;
                 blinkInterval = setInterval(() => {
                     fadeStep += fadeDirection * 0.1;
                     if (fadeStep >= 1) {
@@ -73,7 +79,7 @@
                     const [r, g, b] = color.match(/\d+/g).map(Number);
                     const interpolatedColor = `rgb(${Math.round(r * fadeStep)}, ${Math.round(g * fadeStep)}, ${Math.round(b * fadeStep)})`;
                     body.style.backgroundColor = interpolatedColor;
-                }, onTime / 10);
+                }, fadeInterval);
 
                 qrCode.style.display = 'none';
                 pngImage.style.display = 'none';
